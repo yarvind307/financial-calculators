@@ -365,12 +365,12 @@
                     <div class="charges-row"><span>Net Disbursed Cash In-Hand:</span><span id="lblNetDisbursed" style="font-size:14px;font-weight:700;color:#2b6cb0;">₹0.00</span></div>
                 </div>
                 <div class="metrics-grid">
-                    <div class="metric-card emi-card full-width-card"><div class="metric-label">Monthly EMI Payout</div><div class="metric-value" id="displayEmi">₹0.00</div></div>
+                    <div class="metric-card emi-card"><div class="metric-label">Monthly EMI Payout</div><div class="metric-value" id="displayEmi">₹0.00</div></div>
+                    <div class="metric-card saved-card"><div class="metric-label">Tenure Reduced By</div><div class="metric-value" id="displaySavedTenure">0 Month(s)</div></div>
                     <div class="metric-card baseline-card"><div class="metric-label">Original Interest</div><div class="metric-value" id="displayBaseInterest">₹0.00</div></div>
                     <div class="metric-card interest-card"><div class="metric-label">Actual Interest Paid</div><div class="metric-value" id="displayActualInterest">₹0.00</div></div>
                     <div class="metric-card extra-total-card"><div class="metric-label">Total Prepayments Made</div><div class="metric-value" id="displayTotalExtra">₹0.00</div></div>
                     <div class="metric-card saved-card"><div class="metric-label">Net Interest Saved</div><div class="metric-value" id="displaySavedInterest">₹0.00</div></div>
-                    <div class="metric-card saved-card"><div class="metric-label">Tenure Reduced By</div><div class="metric-value" id="displaySavedTenure">0 Month(s)</div></div>
                 </div>
                 <div class="chart-container"><canvas id="loanChart"></canvas></div>
             </div>
@@ -569,7 +569,7 @@
     </div>
 </div>
 
-<script>
+<script {cite: []}>
     function switchTab(tabId) {
         document.querySelectorAll('.calculator-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -589,7 +589,7 @@
     }
 
     // ==========================================
-    // MODULE 1: LOAN REPAYMENT (BUG SOLVED)
+    // MODULE 1: LOAN REPAYMENT
     // ==========================================
     let loanPrepayments = {}; let loanChart = null;
     function resetLoan() {
@@ -649,7 +649,6 @@
             let intr = bal * mRate; 
             let scheduledPrin = emi - intr; 
             
-            // Clean Edge Case Check: If remaining balance is smaller than the standard principal part
             if (bal < scheduledPrin) {
                 scheduledPrin = bal;
             }
@@ -657,7 +656,6 @@
             let extra = loanPrepayments[i] || 0;
             let totalPrinPaid = scheduledPrin + extra;
 
-            // Cap the total payment to the exact remaining balance so it never goes negative
             if (totalPrinPaid >= bal) {
                 totalPrinPaid = bal;
                 extra = Math.max(0, bal - scheduledPrin);
