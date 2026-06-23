@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Financial Planning Suite (with Processing Charges)</title>
+    <title>Ultimate Personal Finance Suite</title>
+    <!-- Chart.js CDN for modern vector rendering -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
@@ -20,7 +21,7 @@
         }
 
         .container {
-            max-width: 1250px;
+            max-width: 1300px;
             margin: 0 auto;
             background: #ffffff;
             padding: 30px 20px;
@@ -28,20 +29,24 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.08);
         }
 
+        /* Responsive Navigation System */
         .tab-navigation {
             display: flex;
+            flex-wrap: wrap;
             background: #e2e8f0;
-            padding: 5px;
+            padding: 6px;
             border-radius: 8px;
             margin-bottom: 25px;
+            gap: 4px;
         }
 
         .tab-btn {
             flex: 1;
-            padding: 12px;
+            min-width: 160px;
+            padding: 10px 12px;
             background: transparent;
             border: none;
-            font-size: 15px;
+            font-size: 13px;
             font-weight: 700;
             color: #4a5568;
             cursor: pointer;
@@ -222,6 +227,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            min-height: 260px;
             max-height: 260px;
         }
 
@@ -235,7 +241,6 @@
         }
         .tax-panel h4 { font-weight: 700; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px;}
 
-        /* Upfront Charges Styling Component */
         .charges-panel {
             background: #f7fafc;
             border: 1px solid #cbd5e0;
@@ -313,211 +318,267 @@
 <body>
 
 <div class="container">
+    <!-- Tab Controls Container -->
     <div class="tab-navigation">
-        <button class="tab-btn active" onclick="switchTab('loan-calc')">Advanced Loan Repayment</button>
-        <button class="tab-btn" onclick="switchTab('sip-calc')">Advanced SIP Wealth Planner</button>
+        <button class="tab-btn active" onclick="switchTab('loan-calc')">Loan Amortization</button>
+        <button class="tab-btn" onclick="switchTab('sip-calc')">SIP Planner</button>
+        <button class="tab-btn" onclick="switchTab('lump-calc')">Lumpsum Growth</button>
+        <button class="tab-btn" onclick="switchTab('runway-calc')">Emergency Runway</button>
+        <button class="tab-btn" onclick="switchTab('swp-calc')">SWP Retirement</button>
+        <button class="tab-btn" onclick="switchTab('fire-calc')">FIRE Freedom Plan</button>
     </div>
 
+    <!-- TAB 1: ADVANCED LOAN CALC -->
     <div id="loan-calc" class="calculator-content active">
         <div class="header">
             <div>
                 <h1>Advanced Loan Repayment Sheet</h1>
-                <div class="subtitle">Dynamic multi-factor compounding engine factoring processing fees, GST, and prepayments.</div>
+                <div class="subtitle">Calculates processing fees, GST outlays, and dynamic continuous row prepayments.</div>
             </div>
-            <div class="btn-row">
-                <button class="action-btn reset-btn" onclick="resetLoan()">Reset Fields</button>
-                <button class="action-btn print-btn" onclick="window.print()">Export PDF</button>
-            </div>
+            <div class="btn-row"><button class="action-btn reset-btn" onclick="resetLoan()">Reset</button><button class="action-btn print-btn" onclick="window.print()">Export</button></div>
         </div>
-
         <div class="dashboard-grid">
             <div class="input-card">
                 <div class="input-group">
-                    <div class="input-flex-label"><label>Sanctioned Loan Amount (₹)</label><span id="valLoanAmount">25,00000</span></div>
-                    <input type="number" id="loanAmount" value="2500000">
-                    <input type="range" id="loanAmountSlider" min="100000" max="20000000" step="50000" value="2500000">
+                    <div class="input-flex-label"><label>Sanctioned Principal (₹)</label><span id="valLoanAmount">25,00000</span></div>
+                    <input type="number" id="loanAmount" value="2500000"><input type="range" id="loanAmountSlider" min="100000" max="20000000" step="50000" value="2500000">
                 </div>
                 <div class="input-group">
-                    <div class="input-flex-label"><label>Annual Interest Rate (% p.a.)</label><span id="valLoanRate">8.5%</span></div>
-                    <input type="number" id="loanRate" value="8.5" step="0.1">
-                    <input type="range" id="loanRateSlider" min="5" max="20" step="0.1" value="8.5">
+                    <div class="input-flex-label"><label>Interest Rate (% p.a.)</label><span id="valLoanRate">8.5%</span></div>
+                    <input type="number" id="loanRate" value="8.5" step="0.1"><input type="range" id="loanRateSlider" min="5" max="20" step="0.1" value="8.5">
                 </div>
                 <div class="input-group">
-                    <div class="input-flex-label"><label>Base Tenure (Months)</label><span id="valLoanTenure">120 Months</span></div>
-                    <input type="number" id="loanTenure" value="120">
-                    <input type="range" id="loanTenureSlider" min="12" max="360" step="1" value="120">
+                    <div class="input-flex-label"><label>Base Tenure (Months)</label><span id="valLoanTenure">120</span></div>
+                    <input type="number" id="loanTenure" value="120"><input type="range" id="loanTenureSlider" min="12" max="360" step="1" value="120">
                 </div>
                 <div class="input-group">
-                    <div class="input-flex-label"><label>Processing Fee (%)</label><span id="valProcFee">1.0%</span></div>
-                    <input type="number" id="procFee" value="1.0" step="0.1" min="0" max="5">
-                    <input type="range" id="procFeeSlider" min="0" max="5" step="0.1" value="1.0">
+                    <div class="input-flex-label"><label>Processing Fee (%)</label><span id="valProcFee">1%</span></div>
+                    <input type="number" id="procFee" value="1.0" step="0.1"><input type="range" id="procFeeSlider" min="0" max="5" step="0.1" value="1.0">
                 </div>
                 <div class="input-group">
-                    <div class="input-flex-label"><label>Other/Documentation Charges (₹)</label><span id="valDocCharges">₹5,000</span></div>
-                    <input type="number" id="docCharges" value="5000" step="500">
-                    <input type="range" id="docChargesSlider" min="0" max="50000" step="500" value="5000">
+                    <div class="input-flex-label"><label>Stamp Duty & Documentation (₹)</label><span id="valDocCharges">5000</span></div>
+                    <input type="number" id="docCharges" value="5000" step="500"><input type="range" id="docChargesSlider" min="0" max="50000" step="500" value="5000">
                 </div>
             </div>
-
             <div class="workspace-block">
                 <div class="charges-panel">
-                    <h4>Deduction & Net Disbursement Statement</h4>
-                    <div class="charges-row"><span>Base Processing Fee:</span><span id="lblBaseProc">₹0.00</span></div>
-                    <div class="charges-row"><span>GST on Processing Fee (18%):</span><span id="lblProcGst">₹0.00</span></div>
-                    <div class="charges-row"><span>Documentation/Stamp Charges:</span><span id="lblDocOut">₹0.00</span></div>
-                    <div class="charges-row"><span>Actual In-Hand Cash Disbursed:</span><span id="lblNetDisbursed" style="font-size:15px;">₹0.00</span></div>
+                    <h4>Disbursement & Fees Breakdown Statement</h4>
+                    <div class="charges-row"><span>Base Processing Charges:</span><span id="lblBaseProc">₹0.00</span></div>
+                    <div class="charges-row"><span>GST Component (18% on Fee):</span><span id="lblProcGst">₹0.00</span></div>
+                    <div class="charges-row"><span>Documentation Charges:</span><span id="lblDocOut">₹0.00</span></div>
+                    <div class="charges-row"><span>Net Disbursed Cash In-Hand:</span><span id="lblNetDisbursed" style="font-size:14px;font-weight:700;color:#2b6cb0;">₹0.00</span></div>
                 </div>
-
                 <div class="metrics-grid">
-                    <div class="metric-card emi-card full-width-card">
-                        <div class="metric-label">Standard Monthly EMI</div>
-                        <div class="metric-value" id="displayEmi">₹0.00</div>
-                    </div>
-                    <div class="metric-card baseline-card">
-                        <div class="metric-label">Original Interest (No Prepayments)</div>
-                        <div class="metric-value" id="displayBaseInterest">₹0.00</div>
-                    </div>
-                    <div class="metric-card interest-card">
-                        <div class="metric-label">Actual Interest Paid</div>
-                        <div class="metric-value" id="displayActualInterest">₹0.00</div>
-                    </div>
-                    <div class="metric-card extra-total-card">
-                        <div class="metric-label">Total Extra Prepayments Made</div>
-                        <div class="metric-value" id="displayTotalExtra">₹0.00</div>
-                    </div>
-                    <div class="metric-card saved-card">
-                        <div class="metric-label">Total Interest Saved</div>
-                        <div class="metric-value" id="displaySavedInterest">₹0.00</div>
-                    </div>
-                    <div class="metric-card saved-card full-width-card">
-                        <div class="metric-label">Tenure Reduced By</div>
-                        <div class="metric-value" id="displaySavedTenure">0 Month(s)</div>
-                    </div>
+                    <div class="metric-card emi-card full-width-card"><div class="metric-label">Monthly EMI Payout</div><div class="metric-value" id="displayEmi">₹0.00</div></div>
+                    <div class="metric-card baseline-card"><div class="metric-label">Original Interest</div><div class="metric-value" id="displayBaseInterest">₹0.00</div></div>
+                    <div class="metric-card interest-card"><div class="metric-label">Actual Interest Paid</div><div class="metric-value" id="displayActualInterest">₹0.00</div></div>
+                    <div class="metric-card extra-total-card"><div class="metric-label">Total Prepayments Made</div><div class="metric-value" id="displayTotalExtra">₹0.00</div></div>
+                    <div class="metric-card saved-card"><div class="metric-label">Net Interest Saved</div><div class="metric-value" id="displaySavedInterest">₹0.00</div></div>
                 </div>
-
-                <div class="tax-panel">
-                    <h4>Indian Tax Exemptions Forecast (Annual Baseline)</h4>
-                    <p>• Max Interest Deduction Available (Sec 24b): <strong>₹2,00000</strong> max limitation.</p>
-                    <p>• Processing fees & GST also qualify as tax-deductible under interest outlays for home loans!</p>
-                </div>
-
-                <div class="chart-container">
-                    <canvas id="loanChart"></canvas>
-                </div>
+                <div class="chart-container"><canvas id="loanChart"></canvas></div>
             </div>
         </div>
-
         <div class="table-section">
-            <div class="table-title">Dynamic Amortization Breakdown</div>
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Month</th>
-                            <th>Opening Balance</th>
-                            <th>Standard EMI</th>
-                            <th style="text-align: center; width: 130px;">Extra Prepayment (₹)</th>
-                            <th>Principal Paid</th>
-                            <th>Interest Paid</th>
-                            <th>Closing Balance</th>
-                        </tr>
-                    </thead>
-                    <tbody id="loanTableBody"></tbody>
-                </table>
-            </div>
+            <div class="table-title">Amortization Table Matrix</div>
+            <div class="table-responsive"><table><thead><tr><th>Month</th><th>Opening Balance</th><th>EMI Payment</th><th>Extra Payment (₹)</th><th>Principal</th><th>Interest</th><th>Closing Balance</th></tr></thead><tbody id="loanTableBody"></tbody></table></div>
         </div>
     </div>
 
-
+    <!-- TAB 2: SIP PLANNER -->
     <div id="sip-calc" class="calculator-content">
         <div class="header">
             <div>
                 <h1>Advanced SIP Wealth Planner</h1>
-                <div class="subtitle">Future investment metrics compounding engine integrated with annual growth step-ups.</div>
+                <div class="subtitle">Compounding algorithm integrating yearly investment step-ups and inflation analysis.</div>
             </div>
-            <div class="btn-row">
-                <button class="action-btn reset-btn" onclick="resetSIP()">Reset Fields</button>
-                <button class="action-btn print-btn" onclick="window.print()">Export PDF</button>
-            </div>
+            <div class="btn-row"><button class="action-btn reset-btn" onclick="resetSIP()">Reset</button></div>
         </div>
-
         <div class="dashboard-grid">
             <div class="input-card">
                 <div class="input-group">
                     <div class="input-flex-label"><label>Monthly SIP Contribution (₹)</label><span id="valSipAmount">25,000</span></div>
-                    <input type="number" id="sipAmount" value="25000">
-                    <input type="range" id="sipAmountSlider" min="500" max="500000" step="500" value="25000">
+                    <input type="number" id="sipAmount" value="25000"><input type="range" id="sipAmountSlider" min="500" max="200000" step="500" value="25000">
                 </div>
                 <div class="input-group">
-                    <div class="input-flex-label"><label>Expected Return Rate (% p.a.)</label><span id="valSipRate">15%</span></div>
-                    <input type="number" id="sipRate" value="15" step="0.5">
-                    <input type="range" id="sipRateSlider" min="2" max="30" step="0.5" value="15">
+                    <div class="input-flex-label"><label>Expected Growth Rate (% p.a.)</label><span id="valSipRate">12%</span></div>
+                    <input type="number" id="sipRate" value="12" step="0.5"><input type="range" id="sipRateSlider" min="2" max="25" step="0.5" value="12">
                 </div>
                 <div class="input-group">
-                    <div class="input-flex-label"><label>Duration (Years)</label><span id="valSipTenure">20 Years</span></div>
-                    <input type="number" id="sipTenure" value="20">
-                    <input type="range" id="sipTenureSlider" min="1" max="40" step="1" value="20">
+                    <div class="input-flex-label"><label>Investment Duration (Years)</label><span id="valSipTenure">15</span></div>
+                    <input type="number" id="sipTenure" value="15"><input type="range" id="sipTenureSlider" min="1" max="40" step="1" value="15">
                 </div>
                 <div class="input-group">
-                    <div class="input-flex-label"><label>Annual Step-Up (% Optional)</label><span id="valSipStep">0%</span></div>
-                    <input type="number" id="sipStep" value="0" step="1">
-                    <input type="range" id="sipStepSlider" min="0" max="50" step="1" value="0">
+                    <div class="input-flex-label"><label>Annual Step-Up Contribution (%)</label><span id="valSipStep">10%</span></div>
+                    <input type="number" id="sipStep" value="10"><input type="range" id="sipStepSlider" min="0" max="30" step="1" value="10">
                 </div>
                 <div class="input-group">
-                    <div class="input-flex-label"><label>Expected Inflation (% p.a.)</label><span id="valSipInflation">6%</span></div>
-                    <input type="number" id="sipInflation" value="6" step="0.5">
-                    <input type="range" id="sipInflationSlider" min="0" max="15" step="0.5" value="6">
+                    <div class="input-flex-label"><label>Expected Inflation Rate (% p.a.)</label><span id="valSipInflation">6%</span></div>
+                    <input type="number" id="sipInflation" value="6" step="0.5"><input type="range" id="sipInflationSlider" min="0" max="12" step="0.5" value="6">
                 </div>
             </div>
-
             <div class="workspace-block">
                 <div class="metrics-grid">
-                    <div class="metric-card saved-card full-width-card">
-                        <div class="metric-label">Estimated Future Value</div>
-                        <div class="metric-value" id="displaySipFV">₹0.00</div>
-                    </div>
-                    <div class="metric-card emi-card">
-                        <div class="metric-label">Future Value (Inflation Adjusted)</div>
-                        <div class="metric-value" id="displaySipInflation">₹0.00</div>
-                    </div>
-                    <div class="metric-card interest-card">
-                        <div class="metric-label">Total Capital Invested</div>
-                        <div class="metric-value" id="displaySipInvested">₹0.00</div>
-                    </div>
-                    <div class="metric-card baseline-card full-width-card">
-                        <div class="metric-label">Accumulated Wealth Earned (Growth)</div>
-                        <div class="metric-value" id="displaySipGrowth" style="color: #22543d;">₹0.00</div>
-                    </div>
+                    <div class="metric-card saved-card full-width-card"><div class="metric-label">Estimated Future Value</div><div class="metric-value" id="displaySipFV">₹0.00</div></div>
+                    <div class="metric-card emi-card"><div class="metric-label">Purchasing Power (Inflation Adj.)</div><div class="metric-value" id="displaySipInflation">₹0.00</div></div>
+                    <div class="metric-card interest-card"><div class="metric-label">Total Principal Invested</div><div class="metric-value" id="displaySipInvested">₹0.00</div></div>
+                    <div class="metric-card baseline-card full-width-card"><div class="metric-label">Net Accumulated Growth Wealth</div><div class="metric-value" id="displaySipGrowth" style="color:#22543d;">₹0.00</div></div>
                 </div>
-
-                <div class="chart-container">
-                    <canvas id="sipChart"></canvas>
-                </div>
+                <div class="chart-container"><canvas id="sipChart"></canvas></div>
             </div>
         </div>
-
         <div class="table-section">
-            <div class="table-title">Year-on-Year Portfolio Growth Projection Matrix</div>
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Year</th>
-                            <th>Monthly SIP Input</th>
-                            <th>Annual Invested Capital</th>
-                            <th>Cumulative Investment</th>
-                            <th>Interest Wealth Growth</th>
-                            <th>Closing Valuation Balance</th>
-                        </tr>
-                    </thead>
-                    <tbody id="sipTableBody"></tbody>
-                </table>
+            <div class="table-title">Yearly Wealth Progression Statement</div>
+            <div class="table-responsive"><table><thead><tr><th>Year</th><th>Monthly Installment</th><th>Annual Contribution</th><th>Cumulative Capital</th><th>Growth Yield</th><th>Ending Balance</th></tr></thead><tbody id="sipTableBody"></tbody></table></div>
+        </div>
+    </div>
+
+    <!-- TAB 3: LUMPSUM GROWTH -->
+    <div id="lump-calc" class="calculator-content">
+        <div class="header">
+            <div>
+                <h1>Lumpsum Investment Calculator</h1>
+                <div class="subtitle">Plots one-time primary wealth allocation trajectories over custom long-term spans.</div>
+            </div>
+            <div class="btn-row"><button class="action-btn reset-btn" onclick="resetLump()">Reset</button></div>
+        </div>
+        <div class="dashboard-grid">
+            <div class="input-card">
+                <div class="input-group">
+                    <div class="input-flex-label"><label>One-Time Principal (₹)</label><span id="valLumpAmount">100,000</span></div>
+                    <input type="number" id="lumpAmount" value="100000"><input type="range" id="lumpAmountSlider" min="5000" max="5000000" step="5000" value="100000">
+                </div>
+                <div class="input-group">
+                    <div class="input-flex-label"><label>Expected Compound Return (% p.a.)</label><span id="valLumpRate">12%</span></div>
+                    <input type="number" id="lumpRate" value="12" step="0.5"><input type="range" id="lumpRateSlider" min="3" max="25" step="0.5" value="12">
+                </div>
+                <div class="input-group">
+                    <div class="input-flex-label"><label>Duration (Years)</label><span id="valLumpTenure">10</span></div>
+                    <input type="number" id="lumpTenure" value="10"><input type="range" id="lumpTenureSlider" min="1" max="40" step="1" value="10">
+                </div>
+            </div>
+            <div class="workspace-block">
+                <div class="metrics-grid">
+                    <div class="metric-card saved-card full-width-card"><div class="metric-label">Estimated Maturity Balance</div><div class="metric-value" id="displayLumpFV">₹0.00</div></div>
+                    <div class="metric-card emi-card"><div class="metric-label">Initial Invested Capital</div><div class="metric-value" id="displayLumpInvested">₹0.00</div></div>
+                    <div class="metric-card baseline-card"><div class="metric-label">Estimated Capital Yield Growth</div><div class="metric-value" id="displayLumpGrowth" style="color:#22543d;">₹0.00</div></div>
+                </div>
+                <div class="chart-container"><canvas id="lumpChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 4: EMERGENCY RUNWAY -->
+    <div id="runway-calc" class="calculator-content">
+        <div class="header">
+            <div>
+                <h1>Emergency Fund Safety Runway Planner</h1>
+                <div class="subtitle">Maps liquid emergency reserve requirements based on mandatory monthly cash commitments.</div>
+            </div>
+            <div class="btn-row"><button class="action-btn reset-btn" onclick="resetRunway()">Reset</button></div>
+        </div>
+        <div class="dashboard-grid">
+            <div class="input-card">
+                <div class="input-group">
+                    <div class="input-flex-label"><label>Monthly Household Outlays (₹)</label><span id="valRunExp">40,000</span></div>
+                    <input type="number" id="runExp" value="40000"><input type="range" id="runExpSlider" min="5000" max="500000" step="2000" value="40000">
+                </div>
+                <div class="input-group">
+                    <div class="input-flex-label"><label>Active Loan EMIs / Commitments (₹)</label><span id="valRunEmi">15,000</span></div>
+                    <input type="number" id="runEmi" value="15000"><input type="range" id="runEmiSlider" min="0" max="200000" step="1000" value="15000">
+                </div>
+                <div class="input-group">
+                    <div class="input-flex-label"><label>Target Buffer Strategy (Months)</label><span id="valRunMonths">6</span></div>
+                    <input type="number" id="runMonths" value="6"><input type="range" id="runMonthsSlider" min="3" max="24" step="1" value="6">
+                </div>
+            </div>
+            <div class="workspace-block">
+                <div class="metrics-grid">
+                    <div class="metric-card emi-card full-width-card"><div class="metric-label">Total Liquidity Reserve Target</div><div class="metric-value" id="displayRunwayTarget" style="color:#2b6cb0;font-size:24px;">₹0.00</div></div>
+                    <div class="metric-card baseline-card"><div class="metric-label">Base Monthly Commitments</div><div class="metric-value" id="displayRunwayMonthly">₹0.00</div></div>
+                    <div class="metric-card saved-card"><div class="metric-label">Survival Operational Safety Window</div><div class="metric-value" id="displayRunwayWindow" style="color:#22543d;">0 Months</div></div>
+                </div>
+                <div class="chart-container"><canvas id="runwayChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 5: SWP RETIREMENT -->
+    <div id="swp-calc" class="calculator-content">
+        <div class="header">
+            <div>
+                <h1>Systematic Withdrawal Plan (SWP) Planner</h1>
+                <div class="subtitle">Models decumulation sustainability mapping cash withdrawals against active mutual fund corpus growth.</div>
+            </div>
+            <div class="btn-row"><button class="action-btn reset-btn" onclick="resetSWP()">Reset</button></div>
+        </div>
+        <div class="dashboard-grid">
+            <div class="input-card">
+                <div class="input-group">
+                    <div class="input-flex-label"><label>Initial Principal Asset Pool (₹)</label><span id="valSwpCorpus">50,00000</span></div>
+                    <input type="number" id="swpCorpus" value="5000000"><input type="range" id="swpCorpusSlider" min="100000" max="50000000" step="100000" value="5000000">
+                </div>
+                <div class="input-group">
+                    <div class="input-flex-label"><label>Monthly Systematic Payout (₹)</label><span id="valSwpWithdrawal">35,000</span></div>
+                    <input type="number" id="swpWithdrawal" value="35000"><input type="range" id="swpWithdrawalSlider" min="1000" max="300000" step="1000" value="35000">
+                </div>
+                <div class="input-group">
+                    <div class="input-flex-label"><label>Underlying Portfolio Growth (% p.a.)</label><span id="valSwpRate">10%</span></div>
+                    <input type="number" id="swpRate" value="10" step="0.5"><input type="range" id="swpRateSlider" min="4" max="20" step="0.5" value="10">
+                </div>
+                <div class="input-group">
+                    <div class="input-flex-label"><label>Duration Timeline (Years)</label><span id="valSwpYears">15</span></div>
+                    <input type="number" id="swpYears" value="15"><input type="range" id="swpYearsSlider" min="1" max="35" step="1" value="15">
+                </div>
+            </div>
+            <div class="workspace-block">
+                <div class="metrics-grid">
+                    <div class="metric-card saved-card full-width-card"><div class="metric-label">Residual Value Balance Portfolio</div><div class="metric-value" id="displaySwpEnding">₹0.00</div></div>
+                    <div class="metric-card emi-card"><div class="metric-label">Aggregate Cash Withdrawn</div><div class="metric-value" id="displaySwpTotalWithdrawn">₹0.00</div></div>
+                    <div class="metric-card baseline-card"><div class="metric-label">Net Asset Compound Yield</div><div class="metric-value" id="displaySwpYield">₹0.00</div></div>
+                </div>
+                <div class="chart-container"><canvas id="swpChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 6: FIRE FREEDOM PLAN -->
+    <div id="fire-calc" class="calculator-content">
+        <div class="header">
+            <div>
+                <h1>FIRE (Financial Independence Retire Early) Blueprint</h1>
+                <div class="subtitle">Calculates your net corpus number needed to attain independent financial liberty forever.</div>
+            </div>
+            <div class="btn-row"><button class="action-btn reset-btn" onclick="resetFIRE()">Reset</button></div>
+        </div>
+        <div class="dashboard-grid">
+            <div class="input-card">
+                <div class="input-group">
+                    <div class="input-flex-label"><label>Estimated Monthly Survival Expenses (₹)</label><span id="valFireExp">50,000</span></div>
+                    <input type="number" id="fireExp" value="50000"><input type="range" id="fireExpSlider" min="5000" max="500000" step="2000" value="5000">
+                </div>
+                <div class="input-group">
+                    <div class="input-flex-label"><label>Current Portfolio Value Net Worth (₹)</label><span id="valFireNet">10,00000</span></div>
+                    <input type="number" id="fireNet" value="1000000"><input type="range" id="fireNetSlider" min="0" max="50000000" step="50000" value="1000000">
+                </div>
+                <div class="input-group">
+                    <div class="input-flex-label"><label>Safe Conservative Multiplier Baseline</label><span id="valFireMult">25x (4% Rule)</span></div>
+                    <input type="number" id="fireMult" value="25" min="20" max="40"><input type="range" id="fireMultSlider" min="20" max="40" step="1" value="25">
+                </div>
+            </div>
+            <div class="workspace-block">
+                <div class="metrics-grid">
+                    <div class="metric-card emi-card full-width-card"><div class="metric-label">Target Financial Independence Freedom Corpus</div><div class="metric-value" id="displayFireTarget" style="color:#2b6cb0;font-size:24px;">₹0.00</div></div>
+                    <div class="metric-card saved-card"><div class="metric-label">Deficit Gap to Independence Target</div><div class="metric-value" id="displayFireGap">₹0.00</div></div>
+                    <div class="metric-card baseline-card"><div class="metric-label">Corpus Funding Status Coverage</div><div class="metric-value" id="displayFirePct">0%</div></div>
+                </div>
+                <div class="chart-container"><canvas id="fireChart"></canvas></div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
+    // System Architecture Tab Routing Logic
     function switchTab(tabId) {
         document.querySelectorAll('.calculator-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -525,326 +586,261 @@
         event.currentTarget.classList.add('active');
     }
 
+    // Dynamic State Bindings Engine
+    function sync(numId, sliderId, callback) {
+        const num = document.getElementById(numId);
+        const slider = document.getElementById(sliderId);
+        num.addEventListener('input', (e) => { slider.value = e.target.value; callback(); });
+        slider.addEventListener('input', (e) => { num.value = e.target.value; callback(); });
+    }
+
     function formatINR(num) {
         return '₹' + Math.round(num).toLocaleString('en-IN');
     }
 
-    function syncInputs(numId, sliderId, callback) {
-        const numEl = document.getElementById(numId);
-        const sliderEl = document.getElementById(sliderId);
-        
-        numEl.addEventListener('input', (e) => {
-            sliderEl.value = e.target.value;
-            callback();
-        });
-        sliderEl.addEventListener('input', (e) => {
-            numEl.value = e.target.value;
-            callback();
-        });
-    }
-
     // ==========================================
-    // MODULE 1 CALCULATION LOGIC (LOAN MANAGER)
+    // COMPONENT MODULE 1: LOAN CALCULATOR ENGINE
     // ==========================================
-    let customLoanPrepayments = {};
-    let loanChartObj = null;
-
+    let loanPrepayments = {}; let loanChart = null;
     function resetLoan() {
-        customLoanPrepayments = {};
-        document.getElementById('loanAmount').value = 2500000;
-        document.getElementById('loanAmountSlider').value = 2500000;
-        document.getElementById('loanRate').value = 8.5;
-        document.getElementById('loanRateSlider').value = 8.5;
-        document.getElementById('loanTenure').value = 120;
-        document.getElementById('loanTenureSlider').value = 120;
-        document.getElementById('procFee').value = 1.0;
-        document.getElementById('procFeeSlider').value = 1.0;
-        document.getElementById('docCharges').value = 5000;
-        document.getElementById('docChargesSlider').value = 5000;
-        buildLoanTableStructure();
-        calculateLoan();
+        loanPrepayments = {}; document.getElementById('loanAmount').value = 2500000; document.getElementById('loanAmountSlider').value = 2500000;
+        document.getElementById('loanRate').value = 8.5; document.getElementById('loanRateSlider').value = 8.5;
+        document.getElementById('loanTenure').value = 120; document.getElementById('loanTenureSlider').value = 120;
+        document.getElementById('procFee').value = 1; document.getElementById('procFeeSlider').value = 1;
+        document.getElementById('docCharges').value = 5000; document.getElementById('docChargesSlider').value = 5000;
+        buildLoanTableStructure(); calculateLoan();
     }
-
     function buildLoanTableStructure() {
-        const baseMonths = parseInt(document.getElementById('loanTenure').value) || 0;
-        let html = '';
-        for (let i = 1; i <= baseMonths; i++) {
-            html += `
-                <tr id="lrow-${i}">
-                    <td>${i}</td>
-                    <td id="lopen-${i}">₹0.00</td>
-                    <td id="lemi-${i}">₹0.00</td>
-                    <td><input type="number" class="extra-payment-input" id="linput-${i}" data-month="${i}" placeholder="0"></td>
-                    <td id="lprin-${i}">₹0.00</td>
-                    <td id="lint-${i}">₹0.00</td>
-                    <td id="lclose-${i}">₹0.00</td>
-                </tr>`;
+        const months = parseInt(document.getElementById('loanTenure').value) || 0; let html = '';
+        for(let i=1; i<=months; i++) {
+            html += `<tr id="lr-${i}"><td>${i}</td><td id="lo-${i}">0</td><td id="le-${i}">0</td><td><input type="number" class="extra-payment-input" id="li-${i}" data-month="${i}" placeholder="0"></td><td id="lp-${i}">0</td><td id="lit-${i}">0</td><td id="lc-${i}">0</td></tr>`;
         }
         document.getElementById('loanTableBody').innerHTML = html;
-
-        document.querySelectorAll('#loanTableBody .extra-payment-input').forEach(input => {
-            input.addEventListener('input', (e) => {
-                const m = e.target.getAttribute('data-month');
-                customLoanPrepayments[m] = parseFloat(e.target.value) || 0;
-                calculateLoan();
-            });
+        document.querySelectorAll('#loanTableBody .extra-payment-input').forEach(box => {
+            box.addEventListener('input', (e) => { loanPrepayments[e.target.dataset.month] = parseFloat(e.target.value) || 0; calculateLoan(); });
         });
     }
-
     function calculateLoan() {
         const principal = parseFloat(document.getElementById('loanAmount').value) || 0;
-        const annualRate = parseFloat(document.getElementById('loanRate').value) || 0;
-        const baseMonths = parseInt(document.getElementById('loanTenure').value) || 0;
-        const procFeePct = parseFloat(document.getElementById('procFee').value) || 0;
-        const documentation = parseFloat(document.getElementById('docCharges').value) || 0;
+        const rate = parseFloat(document.getElementById('loanRate').value) || 0;
+        const months = parseInt(document.getElementById('loanTenure').value) || 0;
+        const fee = parseFloat(document.getElementById('procFee').value) || 0;
+        const doc = parseFloat(document.getElementById('docCharges').value) || 0;
 
-        // Sync visual text trackers
         document.getElementById('valLoanAmount').innerText = principal.toLocaleString('en-IN');
-        document.getElementById('valLoanRate').innerText = annualRate + '%';
-        document.getElementById('valLoanTenure').innerText = baseMonths + ' Months';
-        document.getElementById('valProcFee').innerText = procFeePct + '%';
-        document.getElementById('valDocCharges').innerText = '₹' + documentation.toLocaleString('en-IN');
+        document.getElementById('valLoanRate').innerText = rate + '%';
+        document.getElementById('valLoanTenure').innerText = months;
+        document.getElementById('valProcFee').innerText = fee + '%';
+        document.getElementById('valDocCharges').innerText = doc;
 
-        if (principal <= 0 || annualRate <= 0 || baseMonths <= 0) return;
+        const baseProcCost = principal * (fee/100); const gst = baseProcCost * 0.18;
+        document.getElementById('lblBaseProc').innerText = formatINR(baseProcCost);
+        document.getElementById('lblProcGst').innerText = formatINR(gst);
+        document.getElementById('lblDocOut').innerText = formatINR(doc);
+        document.getElementById('lblNetDisbursed').innerText = formatINR(principal - (baseProcCost + gst + doc));
 
-        // Calculate upfront charges & GST modifications
-        const baseProcessingCost = principal * (procFeePct / 100);
-        const gstOnProcessing = baseProcessingCost * 0.18; // 18% GST in India
-        const totalUpfrontDeductions = baseProcessingCost + gstOnProcessing + documentation;
-        const netDisbursedAmount = principal - totalUpfrontDeductions;
+        const mRate = (rate/100)/12;
+        const emi = (principal * mRate * Math.pow(1+mRate, months)) / (Math.pow(1+mRate, months)-1);
+        const baselineInt = (emi * months) - principal;
+        document.getElementById('displayEmi').innerText = formatINR(emi);
+        document.getElementById('displayBaseInterest').innerText = formatINR(baselineInt);
 
-        document.getElementById('lblBaseProc').innerText = formatINR(baseProcessingCost);
-        document.getElementById('lblProcGst').innerText = formatINR(gstOnProcessing);
-        document.getElementById('lblDocOut').innerText = formatINR(documentation);
-        document.getElementById('lblNetDisbursed').innerText = formatINR(netDisbursedAmount);
-
-        const monthlyRate = (annualRate / 100) / 12;
-        const standardEmi = (principal * monthlyRate * Math.pow(1 + monthlyRate, baseMonths)) / (Math.pow(1 + monthlyRate, baseMonths) - 1);
-        const baselineTotalInterest = (standardEmi * baseMonths) - principal;
-
-        document.getElementById('displayEmi').innerText = formatINR(standardEmi);
-        document.getElementById('displayBaseInterest').innerText = formatINR(baselineTotalInterest);
-
-        let currentBalance = principal;
-        let actualInterestPaid = 0;
-        let totalExtraPaymentsPaid = 0;
-        let finalActualMonths = 0;
-        let loanFinished = false;
-
-        for (let i = 1; i <= baseMonths; i++) {
-            const rowEl = document.getElementById(`lrow-${i}`);
-            const openEl = document.getElementById(`lopen-${i}`);
-            const emiEl = document.getElementById(`lemi-${i}`);
-            const inputEl = document.getElementById(`linput-${i}`);
-            const prinEl = document.getElementById(`lprin-${i}`);
-            const intEl = document.getElementById(`lint-${i}`);
-            const closeEl = document.getElementById(`lclose-${i}`);
-
-            if (!rowEl) continue;
-
-            if (loanFinished) {
-                rowEl.classList.add('loan-ended');
-                openEl.innerText = "₹0.00"; emiEl.innerText = "₹0.00";
-                inputEl.disabled = true; inputEl.value = "";
-                prinEl.innerText = "₹0.00"; intEl.innerText = "₹0.00"; closeEl.innerText = "₹0.00";
-                continue;
+        let bal = principal; let actualInt = 0; let extraPaid = 0; let finished = false; let endM = months;
+        for(let i=1; i<=months; i++) {
+            const o = document.getElementById(`lo-${i}`); const e = document.getElementById(`le-${i}`); const inp = document.getElementById(`li-${i}`);
+            const p = document.getElementById(`lp-${i}`); const it = document.getElementById(`lit-${i}`); const c = document.getElementById(`lc-${i}`);
+            if(!o) continue;
+            if(finished) {
+                document.getElementById(`lr-${i}`).classList.add('loan-ended'); o.innerText = "₹0"; e.innerText = "₹0"; inp.disabled=true; inp.value=""; p.innerText="₹0"; it.innerText="₹0"; c.innerText="₹0"; continue;
             }
-
-            rowEl.classList.remove('loan-ended');
-            inputEl.disabled = false;
-
-            const interestComponent = currentBalance * monthlyRate;
-            let scheduledPrincipal = standardEmi - interestComponent;
-
-            if (currentBalance <= scheduledPrincipal) {
-                scheduledPrincipal = currentBalance;
-                actualInterestPaid += interestComponent;
-                finalActualMonths = i;
-                loanFinished = true;
-
-                openEl.innerText = formatINR(currentBalance);
-                emiEl.innerText = formatINR(scheduledPrincipal + interestComponent);
-                prinEl.innerText = formatINR(scheduledPrincipal);
-                intEl.innerText = formatINR(interestComponent);
-                closeEl.innerText = "₹0.00";
-                currentBalance = 0;
-                continue;
+            document.getElementById(`lr-${i}`).classList.remove('loan-ended'); inp.disabled=false;
+            let intr = bal * mRate; let prin = emi - intr;
+            if(bal <= prin) {
+                prin = bal; actualInt += intr; finished=true; endM=i;
+                o.innerText=formatINR(bal); e.innerText=formatINR(prin+intr); p.innerText=formatINR(prin); it.innerText=formatINR(intr); c.innerText="₹0"; bal=0; continue;
             }
-
-            let extraPayment = customLoanPrepayments[i] || 0;
-            let dynamicPrincipalPaid = scheduledPrincipal + extraPayment;
-            let closingBalance = currentBalance - dynamicPrincipalPaid;
-
-            if (closingBalance <= 0) {
-                extraPayment = currentBalance - scheduledPrincipal;
-                dynamicPrincipalPaid = currentBalance;
-                closingBalance = 0;
-                loanFinished = true;
-                finalActualMonths = i;
-            }
-
-            actualInterestPaid += interestComponent;
-            totalExtraPaymentsPaid += extraPayment;
-
-            openEl.innerText = formatINR(currentBalance);
-            emiEl.innerText = formatINR(standardEmi);
-            prinEl.innerText = formatINR(dynamicPrincipalPaid - extraPayment);
-            intEl.innerText = formatINR(interestComponent);
-            closeEl.innerText = formatINR(closingBalance);
-
-            if (!loanFinished) finalActualMonths = i;
-            currentBalance = closingBalance;
+            let extra = loanPrepayments[i] || 0; let totalP = prin + extra; let close = bal - totalP;
+            if(close <= 0) { extra = bal - prin; totalP = bal; close = 0; finished = true; endM = i; }
+            actualInt += intr; extraPaid += extra;
+            o.innerText=formatINR(bal); e.innerText=formatINR(emi); p.innerText=formatINR(totalP-extra); it.innerText=formatINR(intr); c.innerText=formatINR(close); bal=close;
         }
-
-        const totalInterestSaved = Math.max(0, baselineTotalInterest - actualInterestPaid);
-        document.getElementById('displayActualInterest').innerText = formatINR(actualInterestPaid);
-        document.getElementById('displayTotalExtra').innerText = formatINR(totalExtraPaymentsPaid);
-        document.getElementById('displaySavedInterest').innerText = formatINR(totalInterestSaved);
-        document.getElementById('displaySavedTenure').innerText = `${baseMonths - finalActualMonths} Month(s)`;
-
-        updateLoanChart(principal, actualInterestPaid);
-    }
-
-    function updateLoanChart(principal, interest) {
+        document.getElementById('displayActualInterest').innerText = formatINR(actualInt);
+        document.getElementById('displayTotalExtra').innerText = formatINR(extraPaid);
+        document.getElementById('displaySavedInterest').innerText = formatINR(Math.max(0, baselineInt - actualInt));
+        
         const ctx = document.getElementById('loanChart').getContext('2d');
-        if (loanChartObj) loanChartObj.destroy();
-        loanChartObj = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Principal Base', 'Actual Interest Outlay'],
-                datasets: [{
-                    data: [principal, interest],
-                    backgroundColor: ['#2b6cb0', '#c53030'],
-                    borderWidth: 1
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false }
-        });
+        if(loanChart) loanChart.destroy();
+        loanChart = new Chart(ctx, { type:'doughnut', data:{ labels:['Principal', 'Interest Outlay'], datasets:[{data:[principal, actualInt], backgroundColor:['#2b6cb0','#c53030']}] }, options:{responsive:true, maintainAspectRatio:false} });
     }
 
     // ==========================================
-    // MODULE 2 CALCULATION LOGIC (WEALTH SIP)
+    // COMPONENT MODULE 2: SIP CALCULATOR ENGINE
     // ==========================================
-    let sipChartObj = null;
-
+    let sipChart = null;
     function resetSIP() {
-        document.getElementById('sipAmount').value = 25000;
-        document.getElementById('sipAmountSlider').value = 25000;
-        document.getElementById('sipRate').value = 15;
-        document.getElementById('sipRateSlider').value = 15;
-        document.getElementById('sipTenure').value = 20;
-        document.getElementById('sipTenureSlider').value = 20;
-        document.getElementById('sipStep').value = 0;
-        document.getElementById('sipStepSlider').value = 0;
-        document.getElementById('sipInflation').value = 6;
-        document.getElementById('sipInflationSlider').value = 6;
+        document.getElementById('sipAmount').value = 25000; document.getElementById('sipRate').value = 12; document.getElementById('sipTenure').value = 15; document.getElementById('sipStep').value = 10; document.getElementById('sipInflation').value = 6;
         calculateSIP();
     }
-
     function calculateSIP() {
         let P = parseFloat(document.getElementById('sipAmount').value) || 0;
-        const annualRate = parseFloat(document.getElementById('sipRate').value) || 0;
+        const rate = parseFloat(document.getElementById('sipRate').value) || 0;
         const years = parseInt(document.getElementById('sipTenure').value) || 0;
-        const stepUpPct = parseFloat(document.getElementById('sipStep').value) || 0;
-        const inflation = parseFloat(document.getElementById('sipInflation').value) || 0;
+        const step = parseFloat(document.getElementById('sipStep').value) || 0;
+        const inf = parseFloat(document.getElementById('sipInflation').value) || 0;
 
         document.getElementById('valSipAmount').innerText = P.toLocaleString('en-IN');
-        document.getElementById('valSipRate').innerText = annualRate + '%';
-        document.getElementById('valSipTenure').innerText = years + ' Years';
-        document.getElementById('valSipStep').innerText = stepUpPct + '%';
-        document.getElementById('valSipInflation').innerText = inflation + '%';
+        document.getElementById('valSipRate').innerText = rate+'%'; document.getElementById('valSipTenure').innerText = years; document.getElementById('valSipStep').innerText = step+'%'; document.getElementById('valSipInflation').innerText = inf+'%';
 
-        if (P <= 0 || annualRate <= 0 || years <= 0) return;
+        let bal = 0; let invested = 0; let tableHtml = ''; let lbls = []; let dInvested = []; let dTotal = [];
+        const r = (rate/100)/12;
 
-        let totalInvested = 0;
-        let currentBalance = 0;
-        const r = annualRate / 12 / 100;
-        let tableHtml = '';
-        
-        let chartLabels = [];
-        let chartInvested = [];
-        let chartValue = [];
-
-        for (let y = 1; y <= years; y++) {
-            let annualContributionThisYear = 0;
-            
-            for (let m = 1; m <= 12; m++) {
-                currentBalance = (currentBalance + P) * (1 + r);
-                annualContributionThisYear += P;
-            }
-
-            totalInvested += annualContributionThisYear;
-            const accumulatedGrowth = currentBalance - totalInvested;
-
-            tableHtml += `
-                <tr>
-                    <td>${y}</td>
-                    <td>${formatINR(P)}</td>
-                    <td>${formatINR(annualContributionThisYear)}</td>
-                    <td>${formatINR(totalInvested)}</td>
-                    <td style="color:#22543d;">${formatINR(accumulatedGrowth)}</td>
-                    <td style="color:#2b6cb0; font-weight:700;">${formatINR(currentBalance)}</td>
-                </tr>`;
-
-            chartLabels.push('Year ' + y);
-            chartInvested.push(totalInvested);
-            chartValue.push(currentBalance);
-
-            P = P * (1 + (stepUpPct / 100));
+        for(let y=1; y<=years; y++) {
+            let annualContribution = P * 12;
+            for(let m=1; m<=12; m++) { bal = (bal + P) * (1 + r); }
+            invested += annualContribution;
+            tableHtml += `<tr><td>${y}</td><td>${formatINR(P)}</td><td>${formatINR(annualContribution)}</td><td>${formatINR(invested)}</td><td style="color:#22543d;">${formatINR(bal-invested)}</td><td style="color:#2b6cb0;font-weight:700;">${formatINR(bal)}</td></tr>`;
+            lbls.push('Year '+y); dInvested.push(invested); dTotal.push(bal);
+            P = P * (1 + (step/100));
         }
-
-        const inflationAdjustedVal = currentBalance / Math.pow((1 + inflation / 100), years);
-
-        document.getElementById('displaySipFV').innerText = formatINR(currentBalance);
-        document.getElementById('displaySipInflation').innerText = formatINR(inflationAdjustedVal);
-        document.getElementById('displaySipInvested').innerText = formatINR(totalInvested);
-        document.getElementById('displaySipGrowth').innerText = formatINR(currentBalance - totalInvested);
+        document.getElementById('displaySipFV').innerText = formatINR(bal);
+        document.getElementById('displaySipInflation').innerText = formatINR(bal / Math.pow(1+(inf/100), years));
+        document.getElementById('displaySipInvested').innerText = formatINR(invested);
+        document.getElementById('displaySipGrowth').innerText = formatINR(bal - invested);
         document.getElementById('sipTableBody').innerHTML = tableHtml;
 
-        updateSipChart(chartLabels, chartInvested, chartValue);
-    }
-
-    function updateSipChart(labels, invested, total) {
         const ctx = document.getElementById('sipChart').getContext('2d');
-        if (sipChartObj) sipChartObj.destroy();
-        sipChartObj = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [
-                    { label: 'Capital Invested', data: invested, backgroundColor: '#cbd5e0' },
-                    { label: 'Total Valuation Balance', data: total, backgroundColor: '#2b6cb0' }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: { x: { stacked: true }, y: { stacked: false } }
-            }
-        });
+        if(sipChart) sipChart.destroy();
+        sipChart = new Chart(ctx, { type:'bar', data:{ labels:lbls, datasets:[{label:'Capital Invested', data:dInvested, backgroundColor:'#cbd5e0'},{label:'Total Value Portfolio', data:dTotal, backgroundColor:'#2b6cb0'}] }, options:{responsive:true, maintainAspectRatio:false} });
     }
 
-    function init() {
-        // Bind Loan Events
-        syncInputs('loanAmount', 'loanAmountSlider', calculateLoan);
-        syncInputs('loanRate', 'loanRateSlider', calculateLoan);
-        syncInputs('loanTenure', 'loanTenureSlider', () => { buildLoanTableStructure(); calculateLoan(); });
-        syncInputs('procFee', 'procFeeSlider', calculateLoan);
-        syncInputs('docCharges', 'docChargesSlider', calculateLoan);
+    // ==========================================
+    // COMPONENT MODULE 3: LUMPSUM ENGINE
+    // ==========================================
+    let lumpChart = null;
+    function resetLump() { document.getElementById('lumpAmount').value=100000; document.getElementById('lumpRate').value=12; document.getElementById('lumpTenure').value=10; calculateLump(); }
+    function calculateLump() {
+        const principal = parseFloat(document.getElementById('lumpAmount').value) || 0;
+        const rate = parseFloat(document.getElementById('lumpRate').value) || 0;
+        const years = parseInt(document.getElementById('lumpTenure').value) || 0;
+
+        document.getElementById('valLumpAmount').innerText = principal.toLocaleString('en-IN');
+        document.getElementById('valLumpRate').innerText = rate+'%'; document.getElementById('valLumpTenure').innerText = years;
+
+        const fv = principal * Math.pow(1 + (rate/100), years);
+        document.getElementById('displayLumpFV').innerText = formatINR(fv);
+        document.getElementById('displayLumpInvested').innerText = formatINR(principal);
+        document.getElementById('displayLumpGrowth').innerText = formatINR(fv - principal);
+
+        const ctx = document.getElementById('lumpChart').getContext('2d');
+        if(lumpChart) lumpChart.destroy();
+        lumpChart = new Chart(ctx, { type:'doughnut', data:{ labels:['Invested Capital', 'Capital Yield Growth'], datasets:[{data:[principal, fv-principal], backgroundColor:['#cbd5e0','#22543d']}] }, options:{responsive:true, maintainAspectRatio:false} });
+    }
+
+    // ==========================================
+    // COMPONENT MODULE 4: EMERGENCY RUNWAY ENGINE
+    // ==========================================
+    let runwayChart = null;
+    function resetRunway() { document.getElementById('runExp').value=40000; document.getElementById('runEmi').value=15000; document.getElementById('runMonths').value=6; calculateRunway(); }
+    function calculateRunway() {
+        const exp = parseFloat(document.getElementById('runExp').value) || 0;
+        const emi = parseFloat(document.getElementById('runEmi').value) || 0;
+        const targetMonths = parseInt(document.getElementById('runMonths').value) || 0;
+
+        document.getElementById('valRunExp').innerText = exp.toLocaleString('en-IN');
+        document.getElementById('valRunEmi').innerText = emi.toLocaleString('en-IN');
+        document.getElementById('valRunMonths').innerText = targetMonths;
+
+        const monthlyCommitment = exp + emi; const totalTarget = monthlyCommitment * targetMonths;
+        document.getElementById('displayRunwayTarget').innerText = formatINR(totalTarget);
+        document.getElementById('displayRunwayMonthly').innerText = formatINR(monthlyCommitment);
+        document.getElementById('displayRunwayWindow').innerText = targetMonths + ' Month(s)';
+
+        const ctx = document.getElementById('runwayChart').getContext('2d');
+        if(runwayChart) runwayChart.destroy();
+        runwayChart = new Chart(ctx, { type:'bar', data:{ labels:['Monthly Commitment', 'Total Target Fund'], datasets:[{label:'Rupees', data:[monthlyCommitment, totalTarget], backgroundColor:['#718096','#2b6cb0']}] }, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}} });
+    }
+
+    // ==========================================
+    // COMPONENT MODULE 5: SWP CALCULATOR ENGINE
+    // ==========================================
+    let swpChart = null;
+    function resetSWP() { document.getElementById('swpCorpus').value=5000000; document.getElementById('swpWithdrawal').value=35000; document.getElementById('swpRate').value=10; document.getElementById('swpYears').value=15; calculateSWP(); }
+    function calculateSWP() {
+        const corpus = parseFloat(document.getElementById('swpCorpus').value) || 0;
+        const withdrawal = parseFloat(document.getElementById('swpWithdrawal').value) || 0;
+        const rate = parseFloat(document.getElementById('swpRate').value) || 0;
+        const years = parseInt(document.getElementById('swpYears').value) || 0;
+
+        document.getElementById('valSwpCorpus').innerText = corpus.toLocaleString('en-IN');
+        document.getElementById('valSwpWithdrawal').innerText = withdrawal.toLocaleString('en-IN');
+        document.getElementById('valSwpRate').innerText = rate+'%'; document.getElementById('valSwpYears').innerText = years;
+
+        let bal = corpus; let totalW = 0; const r = (rate/100)/12;
+        for(let i=0; i<years*12; i++) {
+            if(bal <= 0) { bal=0; break; }
+            bal = bal - withdrawal; totalW += withdrawal;
+            bal = bal * (1 + r);
+        }
+        document.getElementById('displaySwpEnding').innerText = formatINR(bal);
+        document.getElementById('displaySwpTotalWithdrawn').innerText = formatINR(totalW);
+        document.getElementById('displaySwpYield').innerText = formatINR(Math.max(0, (bal + totalW) - corpus));
+
+        const ctx = document.getElementById('swpChart').getContext('2d');
+        if(swpChart) swpChart.destroy();
+        swpChart = new Chart(ctx, { type:'doughnut', data:{ labels:['Residual Balance', 'Total Withdrawn Capital'], datasets:[{data:[bal, totalW], backgroundColor:['#2b6cb0','#6b46c1']}] }, options:{responsive:true, maintainAspectRatio:false} });
+    }
+
+    // ==========================================
+    // COMPONENT MODULE 6: FIRE CALCULATOR ENGINE
+    // ==========================================
+    let fireChart = null;
+    function resetFIRE() { document.getElementById('fireExp').value=50000; document.getElementById('fireNet').value=1000000; document.getElementById('fireMult').value=25; calculateFIRE(); }
+    function calculateFIRE() {
+        const exp = parseFloat(document.getElementById('fireExp').value) || 0;
+        const net = parseFloat(document.getElementById('fireNet').value) || 0;
+        const mult = parseInt(document.getElementById('fireMult').value) || 0;
+
+        document.getElementById('valFireExp').innerText = exp.toLocaleString('en-IN');
+        document.getElementById('valFireNet').innerText = net.toLocaleString('en-IN');
+        document.getElementById('valFireMult').innerText = mult + 'x';
+
+        const target = exp * 12 * mult; const gap = Math.max(0, target - net); const pct = Math.min(100, (net/target)*100);
+        document.getElementById('displayFireTarget').innerText = formatINR(target);
+        document.getElementById('displayFireGap').innerText = formatINR(gap);
+        document.getElementById('displayFirePct').innerText = pct.toFixed(1) + '% Target Achieved';
+
+        const ctx = document.getElementById('fireChart').getContext('2d');
+        if(fireChart) fireChart.destroy();
+        fireChart = new Chart(ctx, { type:'bar', data:{ labels:['Current Net Worth', 'Target FIRE Corpus'], datasets:[{label:'Rupees', data:[net, target], backgroundColor:['#e9d8fd','#2b6cb0']}] }, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}} });
+    }
+
+    // Global Initialization Matrix Hooks
+    function mainInit() {
+        // Loan Input Synchronization Setup
+        sync('loanAmount', 'loanAmountSlider', calculateLoan); sync('loanRate', 'loanRateSlider', calculateLoan);
+        sync('loanTenure', 'loanTenureSlider', () => { buildLoanTableStructure(); calculateLoan(); });
+        sync('procFee', 'procFeeSlider', calculateLoan); sync('docCharges', 'docChargesSlider', calculateLoan);
         
-        // Bind SIP Events
-        syncInputs('sipAmount', 'sipAmountSlider', calculateSIP);
-        syncInputs('sipRate', 'sipRateSlider', calculateSIP);
-        syncInputs('sipTenure', 'sipTenureSlider', calculateSIP);
-        syncInputs('sipStep', 'sipStepSlider', calculateSIP);
-        syncInputs('sipInflation', 'sipInflationSlider', calculateSIP);
+        // SIP Input Synchronization Setup
+        sync('sipAmount', 'sipAmountSlider', calculateSIP); sync('sipRate', 'sipRateSlider', calculateSIP);
+        sync('sipTenure', 'sipTenureSlider', calculateSIP); sync('sipStep', 'sipStepSlider', calculateSIP); sync('sipInflation', 'sipInflationSlider', calculateSIP);
 
-        buildLoanTableStructure();
-        calculateLoan();
-        calculateSIP();
+        // Lumpsum Synchronization Setup
+        sync('lumpAmount', 'lumpAmountSlider', calculateLump); sync('lumpRate', 'lumpRateSlider', calculateLump); sync('lumpTenure', 'lumpTenureSlider', calculateLump);
+
+        // Runway Synchronization Setup
+        sync('runExp', 'runExpSlider', calculateRunway); sync('runEmi', 'runEmiSlider', calculateRunway); sync('runMonths', 'runMonthsSlider', calculateRunway);
+
+        // SWP Synchronization Setup
+        sync('swpCorpus', 'swpCorpusSlider', calculateSWP); sync('swpWithdrawal', 'swpWithdrawalSlider', calculateSWP); sync('swpRate', 'swpRateSlider', calculateSWP); sync('swpYears', 'swpYearsSlider', calculateSWP);
+
+        // FIRE Synchronization Setup
+        sync('fireExp', 'fireExpSlider', calculateFIRE); sync('fireNet', 'fireNetSlider', calculateFIRE); sync('fireMult', 'fireMultSlider', calculateFIRE);
+
+        // Run Baseline Mathematical Operations
+        buildLoanTableStructure(); calculateLoan(); calculateSIP(); calculateLump(); calculateRunway(); calculateSWP(); calculateFIRE();
     }
-
-    window.onload = init;
+    window.onload = mainInit;
 </script>
 </body>
 </html>
