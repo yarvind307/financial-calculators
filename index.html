@@ -377,7 +377,7 @@
         </div>
         <div class="table-section">
             <div class="table-title">Amortization Table Matrix</div>
-            <div class="table-responsive"><table><thead><tr><th>Month</th><th>Opening Balance</th><th>EMI Payment</th><th>Extra Payment (₹)</th><th>Total Principal Paid</th><th>Interest Paid</th><th>Closing Balance</th></tr></thead><tbody id="loanTableBody"></tbody></table></div>
+            <div class="table-responsive"><table><thead><tr><th>Month</th><th>Opening Balance</th><th>EMI Payment</th><th>Extra Prepayment (₹)</th><th>Principal Paid</th><th>Interest Paid</th><th>Closing Balance</th></tr></thead><tbody id="loanTableBody"></tbody></table></div>
         </div>
     </div>
 
@@ -589,7 +589,7 @@
     }
 
     // ==========================================
-    // MODULE 1: LOAN REPAYMENT (FIXED MATHEMATICS)
+    // MODULE 1: LOAN REPAYMENT (BUG SOLVED)
     // ==========================================
     let loanPrepayments = {}; let loanChart = null;
     function resetLoan() {
@@ -640,32 +640,38 @@
             const o = document.getElementById(`lo-${i}`); const e = document.getElementById(`le-${i}`); const inp = document.getElementById(`li-${i}`);
             const p = document.getElementById(`lp-${i}`); const it = document.getElementById(`lit-${i}`); const c = document.getElementById(`lc-${i}`);
             if(!o) continue;
+            
             if(finished) {
                 document.getElementById(`lr-${i}`).classList.add('loan-ended'); o.innerText = "₹0"; e.innerText = "₹0"; inp.disabled=true; inp.value=""; p.innerText="₹0"; it.innerText="₹0"; c.innerText="₹0"; continue;
             }
             document.getElementById(`lr-${i}`).classList.remove('loan-ended'); inp.disabled=false;
             
             let intr = bal * mRate; 
-            let scheduledPrin = emi - intr; // This is what the regular installment pays off
-            let extra = loanPrepayments[i] || 0;
+            let scheduledPrin = emi - intr; 
             
-            let totalPrinPaid = scheduledPrin + extra; // Prepayments increase principal paid and directly SUBTRACT from principal balance
-            let close = bal - totalPrinPaid;
+            // Clean Edge Case Check: If remaining balance is smaller than the standard principal part
+            if (bal < scheduledPrin) {
+                scheduledPrin = bal;
+            }
+            
+            let extra = loanPrepayments[i] || 0;
+            let totalPrinPaid = scheduledPrin + extra;
 
-            if(close <= 0) {
-                extra = bal - scheduledPrin;
+            // Cap the total payment to the exact remaining balance so it never goes negative
+            if (totalPrinPaid >= bal) {
                 totalPrinPaid = bal;
-                close = 0;
+                extra = Math.max(0, bal - scheduledPrin);
                 finished = true;
                 endM = i;
             }
 
+            let close = bal - totalPrinPaid;
             actualInt += intr;
             extraPaid += extra;
 
             o.innerText = formatINR(bal);
-            e.innerText = formatINR(finished && endM === i ? (scheduledPrin + intr) : emi);
-            p.innerText = formatINR(totalPrinPaid); // Column clearly maps Total Principal reduction
+            e.innerText = formatINR(totalPrinPaid + intr);
+            p.innerText = formatINR(totalPrinPaid); 
             it.innerText = formatINR(intr);
             c.innerText = formatINR(close);
             
