@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ultimate Personal Finance Suite</title>
-    <!-- Chart.js CDN for modern vector rendering -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
@@ -326,7 +325,6 @@
         <button class="tab-btn" onclick="switchTab('fire-calc')">FIRE Freedom Plan</button>
     </div>
 
-    <!-- TAB 1: LOAN CALC -->
     <div id="loan-calc" class="calculator-content active">
         <div class="header">
             <div>
@@ -379,11 +377,10 @@
         </div>
         <div class="table-section">
             <div class="table-title">Amortization Table Matrix</div>
-            <div class="table-responsive"><table><thead><tr><th>Month</th><th>Opening Balance</th><th>EMI Payment</th><th>Extra Payment (₹)</th><th>Principal</th><th>Interest</th><th>Closing Balance</th></tr></thead><tbody id="loanTableBody"></tbody></table></div>
+            <div class="table-responsive"><table><thead><tr><th>Month</th><th>Opening Balance</th><th>EMI Payment</th><th>Extra Payment (₹)</th><th>Total Principal Paid</th><th>Interest Paid</th><th>Closing Balance</th></tr></thead><tbody id="loanTableBody"></tbody></table></div>
         </div>
     </div>
 
-    <!-- TAB 2: SIP PLANNER -->
     <div id="sip-calc" class="calculator-content">
         <div class="header">
             <div>
@@ -431,7 +428,6 @@
         </div>
     </div>
 
-    <!-- TAB 3: LUMPSUM GROWTH -->
     <div id="lump-calc" class="calculator-content">
         <div class="header">
             <div>
@@ -466,7 +462,6 @@
         </div>
     </div>
 
-    <!-- TAB 4: EMERGENCY RUNWAY -->
     <div id="runway-calc" class="calculator-content">
         <div class="header">
             <div>
@@ -501,7 +496,6 @@
         </div>
     </div>
 
-    <!-- TAB 5: SWP RETIREMENT -->
     <div id="swp-calc" class="calculator-content">
         <div class="header">
             <div>
@@ -540,7 +534,6 @@
         </div>
     </div>
 
-    <!-- TAB 6: FIRE FREEDOM PLAN -->
     <div id="fire-calc" class="calculator-content">
         <div class="header">
             <div>
@@ -596,7 +589,7 @@
     }
 
     // ==========================================
-    // MODULE 1: LOAN REPAYMENT
+    // MODULE 1: LOAN REPAYMENT (FIXED MATHEMATICS)
     // ==========================================
     let loanPrepayments = {}; let loanChart = null;
     function resetLoan() {
@@ -651,15 +644,32 @@
                 document.getElementById(`lr-${i}`).classList.add('loan-ended'); o.innerText = "₹0"; e.innerText = "₹0"; inp.disabled=true; inp.value=""; p.innerText="₹0"; it.innerText="₹0"; c.innerText="₹0"; continue;
             }
             document.getElementById(`lr-${i}`).classList.remove('loan-ended'); inp.disabled=false;
-            let intr = bal * mRate; let prin = emi - intr;
-            if(bal <= prin) {
-                prin = bal; actualInt += intr; finished=true; endM=i;
-                o.innerText=formatINR(bal); e.innerText=formatINR(prin+intr); p.innerText=formatINR(prin); it.innerText=formatINR(intr); c.innerText="₹0"; bal=0; continue;
+            
+            let intr = bal * mRate; 
+            let scheduledPrin = emi - intr; // This is what the regular installment pays off
+            let extra = loanPrepayments[i] || 0;
+            
+            let totalPrinPaid = scheduledPrin + extra; // Prepayments increase principal paid and directly SUBTRACT from principal balance
+            let close = bal - totalPrinPaid;
+
+            if(close <= 0) {
+                extra = bal - scheduledPrin;
+                totalPrinPaid = bal;
+                close = 0;
+                finished = true;
+                endM = i;
             }
-            let extra = loanPrepayments[i] || 0; let totalP = prin + extra; let close = bal - totalP;
-            if(close <= 0) { extra = bal - prin; totalP = bal; close = 0; finished = true; endM = i; }
-            actualInt += intr; extraPaid += extra;
-            o.innerText=formatINR(bal); e.innerText=formatINR(emi); p.innerText=formatINR(totalP-extra); it.innerText=formatINR(intr); c.innerText=formatINR(close); bal=close;
+
+            actualInt += intr;
+            extraPaid += extra;
+
+            o.innerText = formatINR(bal);
+            e.innerText = formatINR(finished && endM === i ? (scheduledPrin + intr) : emi);
+            p.innerText = formatINR(totalPrinPaid); // Column clearly maps Total Principal reduction
+            it.innerText = formatINR(intr);
+            c.innerText = formatINR(close);
+            
+            bal = close;
         }
         document.getElementById('displayActualInterest').innerText = formatINR(actualInt);
         document.getElementById('displayTotalExtra').innerText = formatINR(extraPaid);
