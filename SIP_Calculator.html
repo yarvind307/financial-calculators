@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced SIP Wealth Calculator</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f0f4f8;
+            color: #2d3748;
+            padding: 30px 15px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 35px;
+            border-radius: 14px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }
+
+        .header {
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #0f2d59;
+            font-size: 26px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: #4a5568;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        /* Layout Grid matching the Loan Repayment template */
+        .dashboard-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            margin-bottom: 35px;
+        }
+
+        @media (min-width: 992px) {
+            .dashboard-grid {
+                display: grid;
+                grid-template-columns: 1fr 1.6fr;
+            }
+        }
+
+        .input-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 25px;
+            border-radius: 10px;
+            height: fit-content;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-size: 14px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 16px;
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        /* Metrics Grid Layout */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        @media (min-width: 576px) {
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .metric-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        @media (min-width: 576px) {
+            .full-width-card { grid-column: span 2; }
+        }
+
+        .emi-card { background: #ebf8ff; border: 1px solid #bee3f8; }
+        .saved-card { background: #f0fff4; border: 1px solid #c6f6d5; }
+        .interest-card { background: #fff5f5; border: 1px solid #fed7d7; }
+        .baseline-card { background: #f7fafc; border: 1px solid #cbd5e0; }
+
+        .metric-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #718096;
+            margin-bottom: 6px;
+        }
+
+        .metric-value {
+            font-size: 20px;
+            font-weight: 700;
+            word-break: break-all;
+        }
+
+        .emi-card .metric-value { color: #2b6cb0; font-size: 26px; }
+        .saved-card .metric-value { color: #22543d; font-size: 22px; }
+        .interest-card .metric-value { color: #4a5568; }
+        .baseline-card .metric-value { color: #c53030; }
+
+        .table-section { margin-top: 20px; }
+        
+        .table-header-flex {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        @media (min-width: 768px) {
+            .table-header-flex {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+
+        .table-title { font-size: 18px; font-weight: 700; color: #0f2d59; }
+
+        /* Responsive Swiping Container */
+        .table-responsive {
+            overflow-x: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            min-width: 800px;
+        }
+
+        th {
+            background-color: #0f2d59;
+            color: #ffffff;
+            text-align: right;
+            padding: 14px 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        th:first-child { text-align: center; }
+        td { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 500; }
+        td:first-child { text-align: center; color: #718096; font-weight: bold; }
+        tr:nth-child(even) { background-color: #f8fafc; }
+
+        @media (max-width: 576px) {
+            body { padding: 15px 5px; }
+            .container { padding: 20px 15px; border-radius: 8px; }
+            h1 { font-size: 21px; }
+            .emi-card .metric-value { font-size: 22px; }
+            .metric-value { font-size: 18px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Advanced SIP Wealth Calculator</h1>
+        <div class="subtitle">Live Indian Rupee (₹) investment compounding engine adjusted for inflation.</div>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="input-card">
+            <div class="input-group">
+                <label for="sipAmount">Monthly SIP Amount (₹)</label>
+                <input type="number" id="sipAmount" value="25000" step="500">
+            </div>
+            <div class="input-group">
+                <label for="interestRate">Expected Return Rate (% p.a.)</label>
+                <input type="number" id="interestRate" value="15" step="0.5">
+            </div>
+            <div class="input-group">
+                <label for="loanTenure">Duration (Years)</label>
+                <input type="number" id="loanTenure" value="20" step="1">
+            </div>
+            <div class="input-group">
+                <label for="inflationRate">Expected Inflation (% p.a.)</label>
+                <input type="number" id="inflationRate" value="6" step="0.5">
+            </div>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card saved-card full-width-card">
+                <div class="metric-label">Estimated Future Value</div>
+                <div class="metric-value" id="displayFutureValue">₹0.00</div>
+            </div>
+            <div class="metric-card emi-card">
+                <div class="metric-label">Future Value (Inflation Adjusted)</div>
+                <div class="metric-value" id="displayInflationAdjusted">₹0.00</div>
+            </div>
+            <div class="metric-card interest-card">
+                <div class="metric-label">Total Investment Cost</div>
+                <div class="metric-value" id="displayTotalInvestment">₹0.00</div>
+            </div>
+            <div class="metric-card baseline-card full-width-card">
+                <div class="metric-label">Estimated Wealth Gained (Growth)</div>
+                <div class="metric-value" id="displayWealthGained" style="color: #22543d;">₹0.00</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-section">
+        <div class="table-header-flex">
+            <div class="table-title">Year-on-Year Growth Matrix</div>
+            <div class="subtitle" style="margin:0;">*Calculations process instantly as inputs are updated*</div>
+        </div>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>Annual Invested Capital</th>
+                        <th>Cumulative Investment</th>
+                        <th>Interest Wealth Earned</th>
+                        <th>Future Value Balance</th>
+                        <th>Purchasing Power Value (Inflation Adj.)</th>
+                    </tr>
+                </thead>
+                <tbody id="scheduleBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    const inputSip = document.getElementById('sipAmount');
+    const inputRate = document.getElementById('interestRate');
+    const inputTenure = document.getElementById('loanTenure');
+    const inputInflation = document.getElementById('inflationRate');
+
+    const displayFutureValue = document.getElementById('displayFutureValue');
+    const displayInflationAdjusted = document.getElementById('displayInflationAdjusted');
+    const displayTotalInvestment = document.getElementById('displayTotalInvestment');
+    const displayWealthGained = document.getElementById('displayWealthGained');
+    const scheduleBody = document.getElementById('scheduleBody');
+
+    function formatINR(num) {
+        return '₹' + Math.round(num).toLocaleString('en-IN');
+    }
+
+    function calculateSIP() {
+        const P = parseFloat(inputSip.value) || 0;
+        const annualRate = parseFloat(inputRate.value) || 0;
+        const years = parseInt(inputTenure.value) || 0;
+        const inflation = parseFloat(inputInflation.value) || 0;
+
+        if (P <= 0 || annualRate <= 0 || years <= 0) {
+            scheduleBody.innerHTML = "<tr><td colspan='6' style='text-align:center; color:#718096;'>Provide valid entries to build projection rows</td></tr>";
+            return;
+        }
+
+        const r = annualRate / 12 / 100;
+        const totalMonths = years * 12;
+
+        // Core dynamic totals
+        const futureValue = P * (((Math.pow(1 + r, totalMonths) - 1) / r) * (1 + r));
+        const totalInvestment = P * totalMonths;
+        const inflationAdjustedValue = futureValue / Math.pow((1 + inflation / 100), years);
+        const wealthGained = futureValue - totalInvestment;
+
+        displayFutureValue.innerText = formatINR(futureValue);
+        displayInflationAdjusted.innerText = formatINR(inflationAdjustedValue);
+        displayTotalInvestment.innerText = formatINR(totalInvestment);
+        displayWealthGained.innerText = formatINR(wealthGained);
+
+        // Generate Year-by-Year Table breakdown sequence
+        let tableHtml = '';
+        const annualContribution = P * 12;
+
+        for (let y = 1; y <= years; y++) {
+            const currentMonths = y * 12;
+            const yearInvestment = annualContribution * y;
+            
+            // Compounded value for current year
+            const yearFutureValue = P * (((Math.pow(1 + r, currentMonths) - 1) / r) * (1 + r));
+            const yearWealthEarned = yearFutureValue - yearInvestment;
+            const yearInflationAdjusted = yearFutureValue / Math.pow((1 + inflation / 100), y);
+
+            tableHtml += `
+                <tr>
+                    <td>${y}</td>
+                    <td>${formatINR(annualContribution)}</td>
+                    <td>${formatINR(yearInvestment)}</td>
+                    <td style="color: #22543d;">${formatINR(yearWealthEarned)}</td>
+                    <td style="font-weight: 700; color: #2b6cb0;">${formatINR(yearFutureValue)}</td>
+                    <td style="color: #4a5568;">${formatINR(yearInflationAdjusted)}</td>
+                </tr>
+            `;
+        }
+        scheduleBody.innerHTML = tableHtml;
+    }
+
+    // Interactive event triggers matching the loan app structure
+    inputSip.addEventListener('input', calculateSIP);
+    inputRate.addEventListener('input', calculateSIP);
+    inputTenure.addEventListener('input', calculateSIP);
+    inputInflation.addEventListener('input', calculateSIP);
+
+    // Initial load
+    calculateSIP();
+</script>
+
+</body>
+</html>

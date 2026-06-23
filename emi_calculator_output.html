@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Loan EMI Calculator (Responsive)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f0f4f8;
+            color: #2d3748;
+            padding: 30px 15px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 35px;
+            border-radius: 14px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }
+
+        .header {
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #0f2d59;
+            font-size: 26px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: #4a5568;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        /* Responsive Dashboard Split Panel */
+        .dashboard-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            margin-bottom: 35px;
+        }
+
+        @media (min-width: 992px) {
+            .dashboard-grid {
+                display: grid;
+                grid-template-columns: 1fr 1.6fr;
+            }
+        }
+
+        .input-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 25px;
+            border-radius: 10px;
+            height: fit-content;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-size: 14px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 16px;
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        /* Flexible Summary Layout Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        @media (min-width: 576px) {
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .metric-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        @media (min-width: 576px) {
+            .full-width-card { grid-column: span 2; }
+        }
+
+        .emi-card { background: #ebf8ff; border: 1px solid #bee3f8; }
+        .saved-card { background: #f0fff4; border: 1px solid #c6f6d5; }
+        .interest-card { background: #fff5f5; border: 1px solid #fed7d7; }
+        .baseline-card { background: #f7fafc; border: 1px solid #cbd5e0; }
+        .extra-total-card { background: #faf5ff; border: 1px solid #e9d8fd; }
+
+        .metric-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #718096;
+            margin-bottom: 6px;
+        }
+
+        .metric-value {
+            font-size: 20px;
+            font-weight: 700;
+            word-break: break-all;
+        }
+
+        .emi-card .metric-value { color: #2b6cb0; font-size: 26px; }
+        .saved-card .metric-value { color: #22543d; font-size: 22px; }
+        .interest-card .metric-value { color: #c53030; }
+        .baseline-card .metric-value { color: #4a5568; }
+        .extra-total-card .metric-value { color: #6b46c1; }
+
+        .table-section { margin-top: 20px; }
+        
+        .table-header-flex {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        @media (min-width: 768px) {
+            .table-header-flex {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+
+        .table-title { font-size: 18px; font-weight: 700; color: #0f2d59; }
+
+        /* Smooth Mobile Swiping container for complex tables */
+        .table-responsive {
+            overflow-x: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            min-width: 800px; /* Forces table readability instead of squishing text */
+        }
+
+        th {
+            background-color: #0f2d59;
+            color: #ffffff;
+            text-align: right;
+            padding: 14px 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        th:first-child { text-align: center; }
+        td { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 500; }
+        td:first-child { text-align: center; color: #718096; font-weight: bold; }
+        tr:nth-child(even) { background-color: #f8fafc; }
+        
+        tr.loan-ended td {
+            background-color: #edf2f7;
+            color: #a0aec0;
+            text-decoration: line-through;
+        }
+
+        .extra-payment-input {
+            width: 110px;
+            padding: 6px 8px;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+            text-align: right;
+            font-size: 13px;
+            font-weight: 600;
+            color: #2b6cb0;
+        }
+
+        .extra-payment-input:focus { outline: none; border-color: #3182ce; }
+
+        /* Clean adaptive scaling for very small devices */
+        @media (max-width: 576px) {
+            body { padding: 15px 5px; }
+            .container { padding: 20px 15px; border-radius: 8px; }
+            h1 { font-size: 21px; }
+            .emi-card .metric-value { font-size: 22px; }
+            .metric-value { font-size: 18px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Advanced Loan Repayment Spreadsheet</h1>
+        <div class="subtitle">Live Indian Rupee (₹) engine with seamless row prepayments.</div>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="input-card">
+            <div class="input-group">
+                <label for="loanAmount">Principal Loan Amount (₹)</label>
+                <input type="number" id="loanAmount" value="2500000">
+            </div>
+            <div class="input-group">
+                <label for="interestRate">Annual Interest Rate (% p.a.)</label>
+                <input type="number" id="interestRate" value="8.5" step="0.1">
+            </div>
+            <div class="input-group">
+                <label for="loanTenure">Base Tenure (Months)</label>
+                <input type="number" id="loanTenure" value="120">
+            </div>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card emi-card full-width-card">
+                <div class="metric-label">Standard Monthly EMI</div>
+                <div class="metric-value" id="displayEmi">₹0.00</div>
+            </div>
+            <div class="metric-card baseline-card">
+                <div class="metric-label">Original Base Interest (No Prepayments)</div>
+                <div class="metric-value" id="displayBaseInterest">₹0.00</div>
+            </div>
+            <div class="metric-card interest-card">
+                <div class="metric-label">Actual Interest Paid (With Prepayments)</div>
+                <div class="metric-value" id="displayActualInterest">₹0.00</div>
+            </div>
+            <div class="metric-card extra-total-card">
+                <div class="metric-label">Total Extra Payments Made</div>
+                <div class="metric-value" id="displayTotalExtra">₹0.00</div>
+            </div>
+            <div class="metric-card saved-card">
+                <div class="metric-label">Total Interest Saved</div>
+                <div class="metric-value" id="displaySavedInterest">₹0.00</div>
+            </div>
+            <div class="metric-card saved-card">
+                <div class="metric-label">Tenure Reduced By</div>
+                <div class="metric-value" id="displaySavedTenure">0 Months</div>
+            </div>
+            <div class="metric-card full-width-card" style="background: #fafafa;">
+                <div class="metric-label">Total Amount Paid (Prin + Actual Int)</div>
+                <div class="metric-value" id="displayTotalPaid">₹0.00</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-section">
+        <div class="table-header-flex">
+            <div class="table-title">Dynamic Amortization Sheet</div>
+            <div class="subtitle" style="margin:0;">*Type your extra payments seamlessly below without losing your typing cursor*</div>
+        </div>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Opening Balance</th>
+                        <th>Standard EMI</th>
+                        <th style="text-align: center; width: 140px;">Extra Prepayment (₹)</th>
+                        <th>Principal Paid</th>
+                        <th>Interest Paid</th>
+                        <th>Closing Balance</th>
+                    </tr>
+                </thead>
+                <tbody id="scheduleBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    const inputAmount = document.getElementById('loanAmount');
+    const inputRate = document.getElementById('interestRate');
+    const inputTenure = document.getElementById('loanTenure');
+
+    const displayEmi = document.getElementById('displayEmi');
+    const displayBaseInterest = document.getElementById('displayBaseInterest');
+    const displayActualInterest = document.getElementById('displayActualInterest');
+    const displayTotalExtra = document.getElementById('displayTotalExtra');
+    const displaySavedInterest = document.getElementById('displaySavedInterest');
+    const displaySavedTenure = document.getElementById('displaySavedTenure');
+    const displayTotalPaid = document.getElementById('displayTotalPaid');
+    const scheduleBody = document.getElementById('scheduleBody');
+
+    let customPrepayments = {};
+
+    function formatINR(num) {
+        return '₹' + Number(num.toFixed(2)).toLocaleString('en-IN', {
+            minimumFractionDigits: 2, maximumFractionDigits: 2
+        });
+    }
+
+    function buildTableStructure() {
+        const baseMonths = parseInt(inputTenure.value) || 0;
+        let html = '';
+        for (let i = 1; i <= baseMonths; i++) {
+            html += `
+                <tr id="row-${i}">
+                    <td>${i}</td>
+                    <td id="open-${i}">₹0.00</td>
+                    <td id="emi-${i}">₹0.00</td>
+                    <td>
+                        <input type="number" class="extra-payment-input" id="input-${i}" data-month="${i}" placeholder="0">
+                    </td>
+                    <td id="prin-${i}">₹0.00</td>
+                    <td id="int-${i}">₹0.00</td>
+                    <td id="close-${i}">₹0.00</td>
+                </tr>
+            `;
+        }
+        scheduleBody.innerHTML = html;
+
+        document.querySelectorAll('.extra-payment-input').forEach(input => {
+            input.addEventListener('input', (e) => {
+                const month = e.target.getAttribute('data-month');
+                customPrepayments[month] = parseFloat(e.target.value) || 0;
+                calculateFormulas();
+            });
+        });
+    }
+
+    function calculateFormulas() {
+        const principal = parseFloat(inputAmount.value) || 0;
+        const annualRate = parseFloat(inputRate.value) || 0;
+        const baseMonths = parseInt(inputTenure.value) || 0;
+
+        if (principal <= 0 || annualRate <= 0 || baseMonths <= 0) return;
+
+        const monthlyRate = (annualRate / 100) / 12;
+        const standardEmi = (principal * monthlyRate * Math.pow(1 + monthlyRate, baseMonths)) / (Math.pow(1 + monthlyRate, baseMonths) - 1);
+        const baselineTotalInterest = (standardEmi * baseMonths) - principal;
+
+        displayEmi.innerText = formatINR(standardEmi);
+        displayBaseInterest.innerText = formatINR(baselineTotalInterest);
+
+        let currentBalance = principal;
+        let actualInterestPaid = 0;
+        let totalExtraPaymentsPaid = 0;
+        let finalActualMonths = 0;
+        let loanFinished = false;
+
+        for (let i = 1; i <= baseMonths; i++) {
+            const rowEl = document.getElementById(`row-${i}`);
+            const openEl = document.getElementById(`open-${i}`);
+            const emiEl = document.getElementById(`emi-${i}`);
+            const inputEl = document.getElementById(`input-${i}`);
+            const prinEl = document.getElementById(`prin-${i}`);
+            const intEl = document.getElementById(`int-${i}`);
+            const closeEl = document.getElementById(`close-${i}`);
+
+            if (!rowEl) continue;
+
+            if (loanFinished) {
+                rowEl.classList.add('loan-ended');
+                openEl.innerText = "₹0.00";
+                emiEl.innerText = "₹0.00";
+                inputEl.disabled = true;
+                inputEl.value = "";
+                prinEl.innerText = "₹0.00";
+                intEl.innerText = "₹0.00";
+                closeEl.innerText = "₹0.00";
+                continue;
+            }
+
+            rowEl.classList.remove('loan-ended');
+            inputEl.disabled = false;
+
+            const interestComponent = currentBalance * monthlyRate;
+            let scheduledPrincipal = standardEmi - interestComponent;
+
+            if (currentBalance <= scheduledPrincipal) {
+                scheduledPrincipal = currentBalance;
+                const finalEmiPayment = scheduledPrincipal + interestComponent;
+
+                actualInterestPaid += interestComponent;
+                finalActualMonths = i;
+                loanFinished = true;
+
+                openEl.innerText = formatINR(currentBalance);
+                emiEl.innerText = formatINR(finalEmiPayment);
+                prinEl.innerText = formatINR(scheduledPrincipal);
+                intEl.innerText = formatINR(interestComponent);
+                closeEl.innerText = "₹0.00";
+                currentBalance = 0;
+                continue;
+            }
+
+            let extraPayment = customPrepayments[i] || 0;
+            let dynamicPrincipalPaid = scheduledPrincipal + extraPayment;
+            let closingBalance = currentBalance - dynamicPrincipalPaid;
+
+            if (closingBalance <= 0) {
+                extraPayment = currentBalance - scheduledPrincipal;
+                dynamicPrincipalPaid = currentBalance;
+                closingBalance = 0;
+                loanFinished = true;
+                finalActualMonths = i;
+            }
+
+            actualInterestPaid += interestComponent;
+            totalExtraPaymentsPaid += extraPayment;
+
+            openEl.innerText = formatINR(currentBalance);
+            emiEl.innerText = formatINR(standardEmi);
+            prinEl.innerText = formatINR(dynamicPrincipalPaid - extraPayment);
+            intEl.innerText = formatINR(interestComponent);
+            closeEl.innerText = formatINR(closingBalance);
+
+            if (!loanFinished) finalActualMonths = i;
+            currentBalance = closingBalance;
+        }
+
+        const totalInterestSaved = Math.max(0, baselineTotalInterest - actualInterestPaid);
+        const monthsReduced = baseMonths - finalActualMonths;
+
+        displayActualInterest.innerText = formatINR(actualInterestPaid);
+        displayTotalExtra.innerText = formatINR(totalExtraPaymentsPaid);
+        displaySavedInterest.innerText = formatINR(totalInterestSaved);
+        displaySavedTenure.innerText = `${monthsReduced} Month(s)`;
+        displayTotalPaid.innerText = formatINR(principal + actualInterestPaid);
+    }
+
+    function fullReset() {
+        customPrepayments = {};
+        buildTableStructure();
+        calculateFormulas();
+    }
+
+    inputAmount.addEventListener('change', fullReset);
+    inputRate.addEventListener('change', fullReset);
+    inputTenure.addEventListener('change', fullReset);
+
+    fullReset();
+</script>
+
+</body>
+</html>

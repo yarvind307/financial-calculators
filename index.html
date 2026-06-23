@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Financial Planning Suite (with Processing Charges)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f0f4f8;
+            color: #2d3748;
+            padding: 20px 10px;
+        }
+
+        .container {
+            max-width: 1250px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 30px 20px;
+            border-radius: 14px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }
+
+        .tab-navigation {
+            display: flex;
+            background: #e2e8f0;
+            padding: 5px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: transparent;
+            border: none;
+            font-size: 15px;
+            font-weight: 700;
+            color: #4a5568;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .tab-btn.active {
+            background: #0f2d59;
+            color: #ffffff;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .calculator-content {
+            display: none;
+        }
+
+        .calculator-content.active {
+            display: block;
+        }
+
+        .header {
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        h1 {
+            color: #0f2d59;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: #4a5568;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 700;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .print-btn { background: #2b6cb0; color: white; }
+        .reset-btn { background: #718096; color: white; }
+        .action-btn:hover { opacity: 0.9; }
+
+        .dashboard-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        @media (min-width: 992px) {
+            .dashboard-grid {
+                display: grid;
+                grid-template-columns: 1fr 1.6fr;
+            }
+        }
+
+        .input-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 22px;
+            border-radius: 10px;
+            height: fit-content;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        .input-group:last-child { margin-bottom: 0; }
+
+        .input-flex-label {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #4a5568;
+            font-size: 13px;
+        }
+
+        .input-group input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 15px;
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        .input-group input[type="range"] {
+            width: 100%;
+            margin-top: 8px;
+            accent-color: #2b6cb0;
+            cursor: pointer;
+        }
+
+        .workspace-block {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        @media (min-width: 576px) {
+            .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .metric-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        @media (min-width: 576px) { .full-width-card { grid-column: span 2; } }
+
+        .emi-card { background: #ebf8ff; border: 1px solid #bee3f8; }
+        .saved-card { background: #f0fff4; border: 1px solid #c6f6d5; }
+        .interest-card { background: #fff5f5; border: 1px solid #fed7d7; }
+        .baseline-card { background: #f7fafc; border: 1px solid #cbd5e0; }
+        .extra-total-card { background: #faf5ff; border: 1px solid #e9d8fd; }
+
+        .metric-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #718096;
+            margin-bottom: 4px;
+        }
+
+        .metric-value {
+            font-size: 19px;
+            font-weight: 700;
+            word-break: break-all;
+        }
+
+        .emi-card .metric-value { color: #2b6cb0; font-size: 24px; }
+        .saved-card .metric-value { color: #22543d; font-size: 21px; }
+        .interest-card .metric-value { color: #c53030; }
+        .extra-total-card .metric-value { color: #6b46c1; }
+
+        .chart-container {
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 15px;
+            background: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            max-height: 260px;
+        }
+
+        .tax-panel {
+            background: #fffaf0;
+            border: 1px solid #feebc8;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 12px;
+            color: #c05621;
+        }
+        .tax-panel h4 { font-weight: 700; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px;}
+
+        /* Upfront Charges Styling Component */
+        .charges-panel {
+            background: #f7fafc;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 13px;
+        }
+        .charges-panel h4 { font-weight: 700; margin-bottom: 8px; color: #0f2d59; text-transform: uppercase;}
+        .charges-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dashed #e2e8f0; }
+        .charges-row:last-child { border-bottom: none; font-weight: 700; padding-top: 8px; color: #2b6cb0; }
+
+        .table-section { margin-top: 25px; }
+        .table-title { font-size: 16px; font-weight: 700; color: #0f2d59; margin-bottom: 12px; }
+
+        .table-responsive {
+            overflow-x: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            min-width: 850px;
+        }
+
+        th {
+            background-color: #0f2d59;
+            color: #ffffff;
+            text-align: right;
+            padding: 12px 10px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        th:first-child { text-align: center; }
+        td { padding: 9px 10px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 500; }
+        td:first-child { text-align: center; color: #718096; font-weight: bold; }
+        tr:nth-child(even) { background-color: #f8fafc; }
+        
+        tr.loan-ended td {
+            background-color: #edf2f7;
+            color: #a0aec0;
+            text-decoration: line-through;
+        }
+
+        .extra-payment-input {
+            width: 105px;
+            padding: 5px 8px;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+            text-align: right;
+            font-size: 12px;
+            font-weight: 600;
+            color: #2b6cb0;
+        }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; padding: 0; }
+            .tab-navigation, .btn-row, .extra-payment-input, input[type="range"] { display: none !important; }
+            .dashboard-grid { grid-template-columns: 1fr 1fr !important; }
+            table { min-width: 100% !important; }
+        }
+
+        @media (max-width: 576px) {
+            body { padding: 10px 2px; }
+            .container { padding: 15px 10px; border-radius: 8px; }
+            h1 { font-size: 19px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="tab-navigation">
+        <button class="tab-btn active" onclick="switchTab('loan-calc')">Advanced Loan Repayment</button>
+        <button class="tab-btn" onclick="switchTab('sip-calc')">Advanced SIP Wealth Planner</button>
+    </div>
+
+    <div id="loan-calc" class="calculator-content active">
+        <div class="header">
+            <div>
+                <h1>Advanced Loan Repayment Sheet</h1>
+                <div class="subtitle">Dynamic multi-factor compounding engine factoring processing fees, GST, and prepayments.</div>
+            </div>
+            <div class="btn-row">
+                <button class="action-btn reset-btn" onclick="resetLoan()">Reset Fields</button>
+                <button class="action-btn print-btn" onclick="window.print()">Export PDF</button>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="input-card">
+                <div class="input-group">
+                    <div class="input-flex-label"><label>Sanctioned Loan Amount (₹)</label><span id="valLoanAmount">25,00000</span></div>
+                    <input type="number" id="loanAmount" value="2500000">
+                    <input type="range" id="loanAmountSlider" min="100000" max="20000000" step="50000" value="2500000">
+                </div>
+                <div class="input-group">
+                    <div class="input-flex-label"><label>Annual Interest Rate (% p.a.)</label><span id="valLoanRate">8.5%</span></div>
+                    <input type="number" id="loanRate" value="8.5" step="0.1">
+                    <input type="range" id="loanRateSlider" min="5" max="20" step="0.1" value="8.5">
+                </div>
+                <div class="input-group">
+                    <div class="input-flex-label"><label>Base Tenure (Months)</label><span id="valLoanTenure">120 Months</span></div>
+                    <input type="number" id="loanTenure" value="120">
+                    <input type="range" id="loanTenureSlider" min="12" max="360" step="1" value="120">
+                </div>
+                <div class="input-group">
+                    <div class="input-flex-label"><label>Processing Fee (%)</label><span id="valProcFee">1.0%</span></div>
+                    <input type="number" id="procFee" value="1.0" step="0.1" min="0" max="5">
+                    <input type="range" id="procFeeSlider" min="0" max="5" step="0.1" value="1.0">
+                </div>
+                <div class="input-group">
+                    <div class="input-flex-label"><label>Other/Documentation Charges (₹)</label><span id="valDocCharges">₹5,000</span></div>
+                    <input type="number" id="docCharges" value="5000" step="500">
+                    <input type="range" id="docChargesSlider" min="0" max="50000" step="500" value="5000">
+                </div>
+            </div>
+
+            <div class="workspace-block">
+                <div class="charges-panel">
+                    <h4>Deduction & Net Disbursement Statement</h4>
+                    <div class="charges-row"><span>Base Processing Fee:</span><span id="lblBaseProc">₹0.00</span></div>
+                    <div class="charges-row"><span>GST on Processing Fee (18%):</span><span id="lblProcGst">₹0.00</span></div>
+                    <div class="charges-row"><span>Documentation/Stamp Charges:</span><span id="lblDocOut">₹0.00</span></div>
+                    <div class="charges-row"><span>Actual In-Hand Cash Disbursed:</span><span id="lblNetDisbursed" style="font-size:15px;">₹0.00</span></div>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="metric-card emi-card full-width-card">
+                        <div class="metric-label">Standard Monthly EMI</div>
+                        <div class="metric-value" id="displayEmi">₹0.00</div>
+                    </div>
+                    <div class="metric-card baseline-card">
+                        <div class="metric-label">Original Interest (No Prepayments)</div>
+                        <div class="metric-value" id="displayBaseInterest">₹0.00</div>
+                    </div>
+                    <div class="metric-card interest-card">
+                        <div class="metric-label">Actual Interest Paid</div>
+                        <div class="metric-value" id="displayActualInterest">₹0.00</div>
+                    </div>
+                    <div class="metric-card extra-total-card">
+                        <div class="metric-label">Total Extra Prepayments Made</div>
+                        <div class="metric-value" id="displayTotalExtra">₹0.00</div>
+                    </div>
+                    <div class="metric-card saved-card">
+                        <div class="metric-label">Total Interest Saved</div>
+                        <div class="metric-value" id="displaySavedInterest">₹0.00</div>
+                    </div>
+                    <div class="metric-card saved-card full-width-card">
+                        <div class="metric-label">Tenure Reduced By</div>
+                        <div class="metric-value" id="displaySavedTenure">0 Month(s)</div>
+                    </div>
+                </div>
+
+                <div class="tax-panel">
+                    <h4>Indian Tax Exemptions Forecast (Annual Baseline)</h4>
+                    <p>• Max Interest Deduction Available (Sec 24b): <strong>₹2,00000</strong> max limitation.</p>
+                    <p>• Processing fees & GST also qualify as tax-deductible under interest outlays for home loans!</p>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="loanChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-section">
+            <div class="table-title">Dynamic Amortization Breakdown</div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Opening Balance</th>
+                            <th>Standard EMI</th>
+                            <th style="text-align: center; width: 130px;">Extra Prepayment (₹)</th>
+                            <th>Principal Paid</th>
+                            <th>Interest Paid</th>
+                            <th>Closing Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody id="loanTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="sip-calc" class="calculator-content">
+        <div class="header">
+            <div>
+                <h1>Advanced SIP Wealth Planner</h1>
+                <div class="subtitle">Future investment metrics compounding engine integrated with annual growth step-ups.</div>
+            </div>
+            <div class="btn-row">
+                <button class="action-btn reset-btn" onclick="resetSIP()">Reset Fields</button>
+                <button class="action-btn print-btn" onclick="window.print()">Export PDF</button>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="input-card">
+                <div class="input-group">
+                    <div class="input-flex-label"><label>Monthly SIP Contribution (₹)</label><span id="valSipAmount">25,000</span></div>
+                    <input type="number" id="sipAmount" value="25000">
+                    <input type="range" id="sipAmountSlider" min="500" max="500000" step="500" value="25000">
+                </div>
+                <div class="input-group">
+                    <div class="input-flex-label"><label>Expected Return Rate (% p.a.)</label><span id="valSipRate">15%</span></div>
+                    <input type="number" id="sipRate" value="15" step="0.5">
+                    <input type="range" id="sipRateSlider" min="2" max="30" step="0.5" value="15">
+                </div>
+                <div class="input-group">
+                    <div class="input-flex-label"><label>Duration (Years)</label><span id="valSipTenure">20 Years</span></div>
+                    <input type="number" id="sipTenure" value="20">
+                    <input type="range" id="sipTenureSlider" min="1" max="40" step="1" value="20">
+                </div>
+                <div class="input-group">
+                    <div class="input-flex-label"><label>Annual Step-Up (% Optional)</label><span id="valSipStep">0%</span></div>
+                    <input type="number" id="sipStep" value="0" step="1">
+                    <input type="range" id="sipStepSlider" min="0" max="50" step="1" value="0">
+                </div>
+                <div class="input-group">
+                    <div class="input-flex-label"><label>Expected Inflation (% p.a.)</label><span id="valSipInflation">6%</span></div>
+                    <input type="number" id="sipInflation" value="6" step="0.5">
+                    <input type="range" id="sipInflationSlider" min="0" max="15" step="0.5" value="6">
+                </div>
+            </div>
+
+            <div class="workspace-block">
+                <div class="metrics-grid">
+                    <div class="metric-card saved-card full-width-card">
+                        <div class="metric-label">Estimated Future Value</div>
+                        <div class="metric-value" id="displaySipFV">₹0.00</div>
+                    </div>
+                    <div class="metric-card emi-card">
+                        <div class="metric-label">Future Value (Inflation Adjusted)</div>
+                        <div class="metric-value" id="displaySipInflation">₹0.00</div>
+                    </div>
+                    <div class="metric-card interest-card">
+                        <div class="metric-label">Total Capital Invested</div>
+                        <div class="metric-value" id="displaySipInvested">₹0.00</div>
+                    </div>
+                    <div class="metric-card baseline-card full-width-card">
+                        <div class="metric-label">Accumulated Wealth Earned (Growth)</div>
+                        <div class="metric-value" id="displaySipGrowth" style="color: #22543d;">₹0.00</div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="sipChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-section">
+            <div class="table-title">Year-on-Year Portfolio Growth Projection Matrix</div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Year</th>
+                            <th>Monthly SIP Input</th>
+                            <th>Annual Invested Capital</th>
+                            <th>Cumulative Investment</th>
+                            <th>Interest Wealth Growth</th>
+                            <th>Closing Valuation Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sipTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function switchTab(tabId) {
+        document.querySelectorAll('.calculator-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+
+    function formatINR(num) {
+        return '₹' + Math.round(num).toLocaleString('en-IN');
+    }
+
+    function syncInputs(numId, sliderId, callback) {
+        const numEl = document.getElementById(numId);
+        const sliderEl = document.getElementById(sliderId);
+        
+        numEl.addEventListener('input', (e) => {
+            sliderEl.value = e.target.value;
+            callback();
+        });
+        sliderEl.addEventListener('input', (e) => {
+            numEl.value = e.target.value;
+            callback();
+        });
+    }
+
+    // ==========================================
+    // MODULE 1 CALCULATION LOGIC (LOAN MANAGER)
+    // ==========================================
+    let customLoanPrepayments = {};
+    let loanChartObj = null;
+
+    function resetLoan() {
+        customLoanPrepayments = {};
+        document.getElementById('loanAmount').value = 2500000;
+        document.getElementById('loanAmountSlider').value = 2500000;
+        document.getElementById('loanRate').value = 8.5;
+        document.getElementById('loanRateSlider').value = 8.5;
+        document.getElementById('loanTenure').value = 120;
+        document.getElementById('loanTenureSlider').value = 120;
+        document.getElementById('procFee').value = 1.0;
+        document.getElementById('procFeeSlider').value = 1.0;
+        document.getElementById('docCharges').value = 5000;
+        document.getElementById('docChargesSlider').value = 5000;
+        buildLoanTableStructure();
+        calculateLoan();
+    }
+
+    function buildLoanTableStructure() {
+        const baseMonths = parseInt(document.getElementById('loanTenure').value) || 0;
+        let html = '';
+        for (let i = 1; i <= baseMonths; i++) {
+            html += `
+                <tr id="lrow-${i}">
+                    <td>${i}</td>
+                    <td id="lopen-${i}">₹0.00</td>
+                    <td id="lemi-${i}">₹0.00</td>
+                    <td><input type="number" class="extra-payment-input" id="linput-${i}" data-month="${i}" placeholder="0"></td>
+                    <td id="lprin-${i}">₹0.00</td>
+                    <td id="lint-${i}">₹0.00</td>
+                    <td id="lclose-${i}">₹0.00</td>
+                </tr>`;
+        }
+        document.getElementById('loanTableBody').innerHTML = html;
+
+        document.querySelectorAll('#loanTableBody .extra-payment-input').forEach(input => {
+            input.addEventListener('input', (e) => {
+                const m = e.target.getAttribute('data-month');
+                customLoanPrepayments[m] = parseFloat(e.target.value) || 0;
+                calculateLoan();
+            });
+        });
+    }
+
+    function calculateLoan() {
+        const principal = parseFloat(document.getElementById('loanAmount').value) || 0;
+        const annualRate = parseFloat(document.getElementById('loanRate').value) || 0;
+        const baseMonths = parseInt(document.getElementById('loanTenure').value) || 0;
+        const procFeePct = parseFloat(document.getElementById('procFee').value) || 0;
+        const documentation = parseFloat(document.getElementById('docCharges').value) || 0;
+
+        // Sync visual text trackers
+        document.getElementById('valLoanAmount').innerText = principal.toLocaleString('en-IN');
+        document.getElementById('valLoanRate').innerText = annualRate + '%';
+        document.getElementById('valLoanTenure').innerText = baseMonths + ' Months';
+        document.getElementById('valProcFee').innerText = procFeePct + '%';
+        document.getElementById('valDocCharges').innerText = '₹' + documentation.toLocaleString('en-IN');
+
+        if (principal <= 0 || annualRate <= 0 || baseMonths <= 0) return;
+
+        // Calculate upfront charges & GST modifications
+        const baseProcessingCost = principal * (procFeePct / 100);
+        const gstOnProcessing = baseProcessingCost * 0.18; // 18% GST in India
+        const totalUpfrontDeductions = baseProcessingCost + gstOnProcessing + documentation;
+        const netDisbursedAmount = principal - totalUpfrontDeductions;
+
+        document.getElementById('lblBaseProc').innerText = formatINR(baseProcessingCost);
+        document.getElementById('lblProcGst').innerText = formatINR(gstOnProcessing);
+        document.getElementById('lblDocOut').innerText = formatINR(documentation);
+        document.getElementById('lblNetDisbursed').innerText = formatINR(netDisbursedAmount);
+
+        const monthlyRate = (annualRate / 100) / 12;
+        const standardEmi = (principal * monthlyRate * Math.pow(1 + monthlyRate, baseMonths)) / (Math.pow(1 + monthlyRate, baseMonths) - 1);
+        const baselineTotalInterest = (standardEmi * baseMonths) - principal;
+
+        document.getElementById('displayEmi').innerText = formatINR(standardEmi);
+        document.getElementById('displayBaseInterest').innerText = formatINR(baselineTotalInterest);
+
+        let currentBalance = principal;
+        let actualInterestPaid = 0;
+        let totalExtraPaymentsPaid = 0;
+        let finalActualMonths = 0;
+        let loanFinished = false;
+
+        for (let i = 1; i <= baseMonths; i++) {
+            const rowEl = document.getElementById(`lrow-${i}`);
+            const openEl = document.getElementById(`lopen-${i}`);
+            const emiEl = document.getElementById(`lemi-${i}`);
+            const inputEl = document.getElementById(`linput-${i}`);
+            const prinEl = document.getElementById(`lprin-${i}`);
+            const intEl = document.getElementById(`lint-${i}`);
+            const closeEl = document.getElementById(`lclose-${i}`);
+
+            if (!rowEl) continue;
+
+            if (loanFinished) {
+                rowEl.classList.add('loan-ended');
+                openEl.innerText = "₹0.00"; emiEl.innerText = "₹0.00";
+                inputEl.disabled = true; inputEl.value = "";
+                prinEl.innerText = "₹0.00"; intEl.innerText = "₹0.00"; closeEl.innerText = "₹0.00";
+                continue;
+            }
+
+            rowEl.classList.remove('loan-ended');
+            inputEl.disabled = false;
+
+            const interestComponent = currentBalance * monthlyRate;
+            let scheduledPrincipal = standardEmi - interestComponent;
+
+            if (currentBalance <= scheduledPrincipal) {
+                scheduledPrincipal = currentBalance;
+                actualInterestPaid += interestComponent;
+                finalActualMonths = i;
+                loanFinished = true;
+
+                openEl.innerText = formatINR(currentBalance);
+                emiEl.innerText = formatINR(scheduledPrincipal + interestComponent);
+                prinEl.innerText = formatINR(scheduledPrincipal);
+                intEl.innerText = formatINR(interestComponent);
+                closeEl.innerText = "₹0.00";
+                currentBalance = 0;
+                continue;
+            }
+
+            let extraPayment = customLoanPrepayments[i] || 0;
+            let dynamicPrincipalPaid = scheduledPrincipal + extraPayment;
+            let closingBalance = currentBalance - dynamicPrincipalPaid;
+
+            if (closingBalance <= 0) {
+                extraPayment = currentBalance - scheduledPrincipal;
+                dynamicPrincipalPaid = currentBalance;
+                closingBalance = 0;
+                loanFinished = true;
+                finalActualMonths = i;
+            }
+
+            actualInterestPaid += interestComponent;
+            totalExtraPaymentsPaid += extraPayment;
+
+            openEl.innerText = formatINR(currentBalance);
+            emiEl.innerText = formatINR(standardEmi);
+            prinEl.innerText = formatINR(dynamicPrincipalPaid - extraPayment);
+            intEl.innerText = formatINR(interestComponent);
+            closeEl.innerText = formatINR(closingBalance);
+
+            if (!loanFinished) finalActualMonths = i;
+            currentBalance = closingBalance;
+        }
+
+        const totalInterestSaved = Math.max(0, baselineTotalInterest - actualInterestPaid);
+        document.getElementById('displayActualInterest').innerText = formatINR(actualInterestPaid);
+        document.getElementById('displayTotalExtra').innerText = formatINR(totalExtraPaymentsPaid);
+        document.getElementById('displaySavedInterest').innerText = formatINR(totalInterestSaved);
+        document.getElementById('displaySavedTenure').innerText = `${baseMonths - finalActualMonths} Month(s)`;
+
+        updateLoanChart(principal, actualInterestPaid);
+    }
+
+    function updateLoanChart(principal, interest) {
+        const ctx = document.getElementById('loanChart').getContext('2d');
+        if (loanChartObj) loanChartObj.destroy();
+        loanChartObj = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Principal Base', 'Actual Interest Outlay'],
+                datasets: [{
+                    data: [principal, interest],
+                    backgroundColor: ['#2b6cb0', '#c53030'],
+                    borderWidth: 1
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    }
+
+    // ==========================================
+    // MODULE 2 CALCULATION LOGIC (WEALTH SIP)
+    // ==========================================
+    let sipChartObj = null;
+
+    function resetSIP() {
+        document.getElementById('sipAmount').value = 25000;
+        document.getElementById('sipAmountSlider').value = 25000;
+        document.getElementById('sipRate').value = 15;
+        document.getElementById('sipRateSlider').value = 15;
+        document.getElementById('sipTenure').value = 20;
+        document.getElementById('sipTenureSlider').value = 20;
+        document.getElementById('sipStep').value = 0;
+        document.getElementById('sipStepSlider').value = 0;
+        document.getElementById('sipInflation').value = 6;
+        document.getElementById('sipInflationSlider').value = 6;
+        calculateSIP();
+    }
+
+    function calculateSIP() {
+        let P = parseFloat(document.getElementById('sipAmount').value) || 0;
+        const annualRate = parseFloat(document.getElementById('sipRate').value) || 0;
+        const years = parseInt(document.getElementById('sipTenure').value) || 0;
+        const stepUpPct = parseFloat(document.getElementById('sipStep').value) || 0;
+        const inflation = parseFloat(document.getElementById('sipInflation').value) || 0;
+
+        document.getElementById('valSipAmount').innerText = P.toLocaleString('en-IN');
+        document.getElementById('valSipRate').innerText = annualRate + '%';
+        document.getElementById('valSipTenure').innerText = years + ' Years';
+        document.getElementById('valSipStep').innerText = stepUpPct + '%';
+        document.getElementById('valSipInflation').innerText = inflation + '%';
+
+        if (P <= 0 || annualRate <= 0 || years <= 0) return;
+
+        let totalInvested = 0;
+        let currentBalance = 0;
+        const r = annualRate / 12 / 100;
+        let tableHtml = '';
+        
+        let chartLabels = [];
+        let chartInvested = [];
+        let chartValue = [];
+
+        for (let y = 1; y <= years; y++) {
+            let annualContributionThisYear = 0;
+            
+            for (let m = 1; m <= 12; m++) {
+                currentBalance = (currentBalance + P) * (1 + r);
+                annualContributionThisYear += P;
+            }
+
+            totalInvested += annualContributionThisYear;
+            const accumulatedGrowth = currentBalance - totalInvested;
+
+            tableHtml += `
+                <tr>
+                    <td>${y}</td>
+                    <td>${formatINR(P)}</td>
+                    <td>${formatINR(annualContributionThisYear)}</td>
+                    <td>${formatINR(totalInvested)}</td>
+                    <td style="color:#22543d;">${formatINR(accumulatedGrowth)}</td>
+                    <td style="color:#2b6cb0; font-weight:700;">${formatINR(currentBalance)}</td>
+                </tr>`;
+
+            chartLabels.push('Year ' + y);
+            chartInvested.push(totalInvested);
+            chartValue.push(currentBalance);
+
+            P = P * (1 + (stepUpPct / 100));
+        }
+
+        const inflationAdjustedVal = currentBalance / Math.pow((1 + inflation / 100), years);
+
+        document.getElementById('displaySipFV').innerText = formatINR(currentBalance);
+        document.getElementById('displaySipInflation').innerText = formatINR(inflationAdjustedVal);
+        document.getElementById('displaySipInvested').innerText = formatINR(totalInvested);
+        document.getElementById('displaySipGrowth').innerText = formatINR(currentBalance - totalInvested);
+        document.getElementById('sipTableBody').innerHTML = tableHtml;
+
+        updateSipChart(chartLabels, chartInvested, chartValue);
+    }
+
+    function updateSipChart(labels, invested, total) {
+        const ctx = document.getElementById('sipChart').getContext('2d');
+        if (sipChartObj) sipChartObj.destroy();
+        sipChartObj = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    { label: 'Capital Invested', data: invested, backgroundColor: '#cbd5e0' },
+                    { label: 'Total Valuation Balance', data: total, backgroundColor: '#2b6cb0' }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { x: { stacked: true }, y: { stacked: false } }
+            }
+        });
+    }
+
+    function init() {
+        // Bind Loan Events
+        syncInputs('loanAmount', 'loanAmountSlider', calculateLoan);
+        syncInputs('loanRate', 'loanRateSlider', calculateLoan);
+        syncInputs('loanTenure', 'loanTenureSlider', () => { buildLoanTableStructure(); calculateLoan(); });
+        syncInputs('procFee', 'procFeeSlider', calculateLoan);
+        syncInputs('docCharges', 'docChargesSlider', calculateLoan);
+        
+        // Bind SIP Events
+        syncInputs('sipAmount', 'sipAmountSlider', calculateSIP);
+        syncInputs('sipRate', 'sipRateSlider', calculateSIP);
+        syncInputs('sipTenure', 'sipTenureSlider', calculateSIP);
+        syncInputs('sipStep', 'sipStepSlider', calculateSIP);
+        syncInputs('sipInflation', 'sipInflationSlider', calculateSIP);
+
+        buildLoanTableStructure();
+        calculateLoan();
+        calculateSIP();
+    }
+
+    window.onload = init;
+</script>
+</body>
+</html>
