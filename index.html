@@ -29,7 +29,6 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.08);
         }
 
-        /* Responsive Navigation System */
         .tab-navigation {
             display: flex;
             flex-wrap: wrap;
@@ -318,7 +317,6 @@
 <body>
 
 <div class="container">
-    <!-- Tab Controls Container -->
     <div class="tab-navigation">
         <button class="tab-btn active" onclick="switchTab('loan-calc')">Loan Amortization</button>
         <button class="tab-btn" onclick="switchTab('sip-calc')">SIP Planner</button>
@@ -328,7 +326,7 @@
         <button class="tab-btn" onclick="switchTab('fire-calc')">FIRE Freedom Plan</button>
     </div>
 
-    <!-- TAB 1: ADVANCED LOAN CALC -->
+    <!-- TAB 1: LOAN CALC -->
     <div id="loan-calc" class="calculator-content active">
         <div class="header">
             <div>
@@ -374,6 +372,7 @@
                     <div class="metric-card interest-card"><div class="metric-label">Actual Interest Paid</div><div class="metric-value" id="displayActualInterest">₹0.00</div></div>
                     <div class="metric-card extra-total-card"><div class="metric-label">Total Prepayments Made</div><div class="metric-value" id="displayTotalExtra">₹0.00</div></div>
                     <div class="metric-card saved-card"><div class="metric-label">Net Interest Saved</div><div class="metric-value" id="displaySavedInterest">₹0.00</div></div>
+                    <div class="metric-card saved-card"><div class="metric-label">Tenure Reduced By</div><div class="metric-value" id="displaySavedTenure">0 Month(s)</div></div>
                 </div>
                 <div class="chart-container"><canvas id="loanChart"></canvas></div>
             </div>
@@ -554,7 +553,7 @@
             <div class="input-card">
                 <div class="input-group">
                     <div class="input-flex-label"><label>Estimated Monthly Survival Expenses (₹)</label><span id="valFireExp">50,000</span></div>
-                    <input type="number" id="fireExp" value="50000"><input type="range" id="fireExpSlider" min="5000" max="500000" step="2000" value="5000">
+                    <input type="number" id="fireExp" value="50000"><input type="range" id="fireExpSlider" min="5000" max="500000" step="2000" value="50000">
                 </div>
                 <div class="input-group">
                     <div class="input-flex-label"><label>Current Portfolio Value Net Worth (₹)</label><span id="valFireNet">10,00000</span></div>
@@ -578,7 +577,6 @@
 </div>
 
 <script>
-    // System Architecture Tab Routing Logic
     function switchTab(tabId) {
         document.querySelectorAll('.calculator-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -586,7 +584,6 @@
         event.currentTarget.classList.add('active');
     }
 
-    // Dynamic State Bindings Engine
     function sync(numId, sliderId, callback) {
         const num = document.getElementById(numId);
         const slider = document.getElementById(sliderId);
@@ -599,7 +596,7 @@
     }
 
     // ==========================================
-    // COMPONENT MODULE 1: LOAN CALCULATOR ENGINE
+    // MODULE 1: LOAN REPAYMENT
     // ==========================================
     let loanPrepayments = {}; let loanChart = null;
     function resetLoan() {
@@ -667,6 +664,7 @@
         document.getElementById('displayActualInterest').innerText = formatINR(actualInt);
         document.getElementById('displayTotalExtra').innerText = formatINR(extraPaid);
         document.getElementById('displaySavedInterest').innerText = formatINR(Math.max(0, baselineInt - actualInt));
+        document.getElementById('displaySavedTenure').innerText = `${months - endM} Month(s)`;
         
         const ctx = document.getElementById('loanChart').getContext('2d');
         if(loanChart) loanChart.destroy();
@@ -674,7 +672,7 @@
     }
 
     // ==========================================
-    // COMPONENT MODULE 2: SIP CALCULATOR ENGINE
+    // MODULE 2: SIP PLANNER
     // ==========================================
     let sipChart = null;
     function resetSIP() {
@@ -714,7 +712,7 @@
     }
 
     // ==========================================
-    // COMPONENT MODULE 3: LUMPSUM ENGINE
+    // MODULE 3: LUMPSUM
     // ==========================================
     let lumpChart = null;
     function resetLump() { document.getElementById('lumpAmount').value=100000; document.getElementById('lumpRate').value=12; document.getElementById('lumpTenure').value=10; calculateLump(); }
@@ -737,7 +735,7 @@
     }
 
     // ==========================================
-    // COMPONENT MODULE 4: EMERGENCY RUNWAY ENGINE
+    // MODULE 4: EMERGENCY RUNWAY
     // ==========================================
     let runwayChart = null;
     function resetRunway() { document.getElementById('runExp').value=40000; document.getElementById('runEmi').value=15000; document.getElementById('runMonths').value=6; calculateRunway(); }
@@ -761,7 +759,7 @@
     }
 
     // ==========================================
-    // COMPONENT MODULE 5: SWP CALCULATOR ENGINE
+    // MODULE 5: SWP
     // ==========================================
     let swpChart = null;
     function resetSWP() { document.getElementById('swpCorpus').value=5000000; document.getElementById('swpWithdrawal').value=35000; document.getElementById('swpRate').value=10; document.getElementById('swpYears').value=15; calculateSWP(); }
@@ -791,7 +789,7 @@
     }
 
     // ==========================================
-    // COMPONENT MODULE 6: FIRE CALCULATOR ENGINE
+    // MODULE 6: FIRE BLUEPRINT
     // ==========================================
     let fireChart = null;
     function resetFIRE() { document.getElementById('fireExp').value=50000; document.getElementById('fireNet').value=1000000; document.getElementById('fireMult').value=25; calculateFIRE(); }
@@ -814,30 +812,19 @@
         fireChart = new Chart(ctx, { type:'bar', data:{ labels:['Current Net Worth', 'Target FIRE Corpus'], datasets:[{label:'Rupees', data:[net, target], backgroundColor:['#e9d8fd','#2b6cb0']}] }, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}} });
     }
 
-    // Global Initialization Matrix Hooks
     function mainInit() {
-        // Loan Input Synchronization Setup
         sync('loanAmount', 'loanAmountSlider', calculateLoan); sync('loanRate', 'loanRateSlider', calculateLoan);
         sync('loanTenure', 'loanTenureSlider', () => { buildLoanTableStructure(); calculateLoan(); });
         sync('procFee', 'procFeeSlider', calculateLoan); sync('docCharges', 'docChargesSlider', calculateLoan);
         
-        // SIP Input Synchronization Setup
         sync('sipAmount', 'sipAmountSlider', calculateSIP); sync('sipRate', 'sipRateSlider', calculateSIP);
         sync('sipTenure', 'sipTenureSlider', calculateSIP); sync('sipStep', 'sipStepSlider', calculateSIP); sync('sipInflation', 'sipInflationSlider', calculateSIP);
 
-        // Lumpsum Synchronization Setup
         sync('lumpAmount', 'lumpAmountSlider', calculateLump); sync('lumpRate', 'lumpRateSlider', calculateLump); sync('lumpTenure', 'lumpTenureSlider', calculateLump);
-
-        // Runway Synchronization Setup
         sync('runExp', 'runExpSlider', calculateRunway); sync('runEmi', 'runEmiSlider', calculateRunway); sync('runMonths', 'runMonthsSlider', calculateRunway);
-
-        // SWP Synchronization Setup
         sync('swpCorpus', 'swpCorpusSlider', calculateSWP); sync('swpWithdrawal', 'swpWithdrawalSlider', calculateSWP); sync('swpRate', 'swpRateSlider', calculateSWP); sync('swpYears', 'swpYearsSlider', calculateSWP);
-
-        // FIRE Synchronization Setup
         sync('fireExp', 'fireExpSlider', calculateFIRE); sync('fireNet', 'fireNetSlider', calculateFIRE); sync('fireMult', 'fireMultSlider', calculateFIRE);
 
-        // Run Baseline Mathematical Operations
         buildLoanTableStructure(); calculateLoan(); calculateSIP(); calculateLump(); calculateRunway(); calculateSWP(); calculateFIRE();
     }
     window.onload = mainInit;
